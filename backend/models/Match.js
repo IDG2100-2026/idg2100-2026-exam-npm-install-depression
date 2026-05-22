@@ -8,19 +8,27 @@ const matchSchema = new mongoose.Schema({
     }],
     outcome: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User' // Referencing winner
+        ref: 'User'
     },
     category: {
-        bestOf: { type: Number, enum: [3, 5, 7], default: 3 },
-        straightsAllowed: { type: Boolean, default: true },
-        timeControl: { type: Number, default: 5 } // in minutes
+        bestOf:          { type: Number, enum: [3, 5, 7], default: 3 },
+        straightsAllowed:{ type: Boolean, default: true },
+        // Time controls in seconds: 10 (quick), 30 (standard), 90 (classical)
+        timeControl:     { type: Number, enum: [10, 30, 90], default: 30 },
+        playerCount:     { type: Number, enum: [2, 3, 5], default: 2 },
+        buyIn:           { type: Number, enum: [1, 10, 50], default: 1 }
     },
-    rolls: [[Number]], //Matrix for saving all die rolls
-    holds: [[Number]], // The dice being held
+    rolls: [[Number]],
+    holds: [[Number]],
     comments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment'
     }],
+    tournamentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tournament',
+        default: null
+    },
     isPrivate: { type: Boolean, default: false },
     status: {
         type: String,

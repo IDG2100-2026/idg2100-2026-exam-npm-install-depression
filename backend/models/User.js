@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        immutable: true // Username can't be changed after creation
+        immutable: true
     },
     email: {
         type: String,
@@ -19,22 +19,37 @@ const userSchema = new mongoose.Schema({
     age: {
         type: Number,
         required: true,
-        min: 18 // Minimum 18 years old requirement
+        min: 18
     },
     role: {
         type: String,
-        enum: ['anonymous', 'registered', 'admin'],
+        enum: ['registered', 'admin'],
         default: 'registered'
     },
-    eloRating: {
-        type: Number,
-        default: 1000 // Standard value, automatically updated
+    profileImage: {
+        type: String,
+        default: ''
     },
-    eloChangeLastWeek: {
+    aboutMe: {
+        type: String,
+        default: '',
+        maxLength: 500
+    },
+    points: {
+        type: Number,
+        default: 100
+    },
+    // Elo per time control (10s / 30s / 90s)
+    eloRatings: {
+        quick:    { type: Number, default: 1000 },
+        standard: { type: Number, default: 1000 },
+        classical:{ type: Number, default: 1000 }
+    },
+    wins: {
         type: Number,
         default: 0
     },
-    wins: {
+    losses: {
         type: Number,
         default: 0
     },
@@ -51,6 +66,24 @@ const userSchema = new mongoose.Schema({
     isBanned: {
         type: Boolean,
         default: false
+    },
+    // Refresh token stored server-side for invalidation on logout
+    refreshToken: {
+        type: String,
+        default: null
+    },
+    // Email verification
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationToken: {
+        type: String,
+        default: null
+    },
+    verificationTokenExpiry: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
 
