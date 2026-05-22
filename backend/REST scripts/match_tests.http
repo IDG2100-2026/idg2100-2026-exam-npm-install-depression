@@ -1,0 +1,59 @@
+@hostname = localhost
+@port= 4567
+@host = {{hostname}}:{{port}}
+@contentType = application/json
+
+# From auth_tests
+@userId = <Paste user id>
+@adminId = <Paste admin id>
+@userToken = <Paste user token>
+@adminToken = <Paste admin token>
+
+### Get all matches
+GET http://{{host}}/api/matches
+
+### Get top list based on category (bestOf and timeControl)
+GET http://{{host}}/api/matches/category?bestOf=3&timeControl=5
+
+
+### Register new match
+# @name createMatch
+POST http://{{host}}/api/matches/register
+Authorization: Bearer {{userToken}}
+Content-Type: {{contentType}}
+
+{
+    "player1": "{{userId}}",
+    "player2": "{{adminId}}",
+    "winnerId": "{{userId}}",
+    "category": {
+        "bestOf": 3,
+        "timeCOntrol": 5
+    }
+}
+
+###
+
+@matchId = {{createMatch.response.body.match._id}}
+
+### Add comment to match
+# @name createComment
+POST http://{{host}}/api/matches/{{matchId}}/comments
+Authorization: Bearer {{userToken}}
+Content-Type: {{contentType}}
+
+{
+    "text": "This match was legendary!"
+}
+
+### Save ID from comment created above
+@commentId = {{createComment.response.body.comment._id}}
+
+### Delete comment
+DELETE http://{{host}}/api/matches/comments/{{commentId}}
+Authorization: Bearer {{userToken}}
+
+
+### Delete a whole match (admin only)
+DELETE http://{{host}}/api/matches/{{matchId}}
+Authorization: Bearer {{adminToken}}

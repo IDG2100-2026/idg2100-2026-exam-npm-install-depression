@@ -1,0 +1,7 @@
+[
+    {
+        "category": { "bestOf": 3, "straightsAllowed": true, "timeControl": 5 },
+        "rolls": [[1, 2, 3, 4, 5], [2, 2, 3, 3, 6]],
+        "holds": [[1, 2, 3, 4, 5], []]
+    }
+]

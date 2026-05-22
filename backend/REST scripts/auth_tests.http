@@ -1,0 +1,70 @@
+@hostname = localhost
+@port = 4567
+@host = {{hostname}}:{{port}}
+@contentType = application/json
+
+
+### Register a new user (normal user)
+POST http://{{host}}/api/users/register
+Content-Type: {{contentType}}
+
+{
+    "username": "TestPlayer123",
+    "password": "testPwd123",
+    "email": "test123@example.com",
+    "age": 30,
+    "role": "registered"
+}
+
+### Login to get token (normal user)
+# @name login
+POST http://{{host}}/api/users/login
+Content-Type: {{contentType}}
+
+{
+    "username": "TestPlayer123",
+    "password": "testPwd123"
+}
+
+
+### Register an admin user
+POST http://{{host}}/api/users/register
+Content-Type: {{contentType}}
+
+{
+    "username": "Adminadmin",
+    "password": "abc123",
+    "email": "adminadmin@test.com",
+    "age": 29,
+    "role": "admin"
+}
+
+### Login as admin to get admin token
+# @name adminLogin
+POST http://{{host}}/api/users/login
+Content-Type: {{contentType}}
+
+{
+    "username": "Adminadmin",
+    "password": "abc123"
+}
+
+### Variable for tokens used in the other files
+@userToken = {{login.response.body.token}}
+@adminToken = {{adminLogin.response.body.token}}
+
+
+### Get global top list (leaderboard)
+GET http://{{host}}/api/users/leaderboard
+
+### Get a specific user profile
+# Replace {{userId}} with actual ID from DB
+GET http://{{host}}/api/users/profile/{{login.response.body.user.id}}
+
+###
+@userId = {{login.response.body.user.id}}
+@adminId = {{adminLogin.response.body.user.id}}
+
+### Ban a user (admin only)
+PUT http://{{host}}/api/users/{{userId}}/ban
+Authorization: Bearer {{adminToken}}

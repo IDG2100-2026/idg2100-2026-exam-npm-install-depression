@@ -1,0 +1,9 @@
+[
+    {
+        "title": "Gjøvik Open 2026",
+        "description": "Spanish Poker tournament for local heroes",
+        "startDate": "2026-05-15T10:00:00Z",
+        "format": { "variant": "Spanish Poker", "breakLength": 10 },
+        "trophy": { "title": "Golden Die", "imageUrl": "trophy_gold.png" }
+    }
+]

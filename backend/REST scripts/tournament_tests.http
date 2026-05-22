@@ -1,0 +1,44 @@
+@hostname = localhost
+@port = 4567
+@host = {{hostname}}:{{port}}
+@contentType = application/json
+
+# Token variables from auth_tests
+@userToken = <Paste normal user token from auth_tests here>
+@adminToken = <Paste admin token here>
+
+### See all tournaments
+GET http://{{host}}/api/tournaments
+
+
+### Create tournament with trophy image (Multer)
+# @name createTournament
+POST http://{{host}}/api/tournaments
+Authorization: Bearer {{adminToken}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="title"
+
+Friday Poker
+--boundary
+Content-Disposition: form-data; name="startDate"
+
+2026-04-19
+--boundary
+Content-Disposition: form-data; name="image"; filename="trophy.png"
+Content-Type: image/png
+
+< ./test-assets/trophy.png
+--boundary--
+
+@tournamentId = {{createTournament.response.body._id}}
+
+### Start tournament (generates brackets/matches)
+POST http://{{host}}/api/tournaments/{{tournamentId}}/start
+Authorization: Bearer {{adminToken}}
+
+
+### Join tournament
+POST http://{{host}}/api/tournaments/{{tournamentId}}/join
+Authorization: Bearer {{userToken}}

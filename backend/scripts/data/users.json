@@ -1,0 +1,17 @@
+[
+    {
+        "username": "admin_guri",
+        "email": "guri@pokerdice.no",
+        "password": "hashedPwd123",
+        "age": 33,
+        "role": "admin"
+    },
+    {
+        "username": "pokerqueen67",
+        "email": "pokerqueen67@gmail.com",
+        "password": "hashedPwd456",
+        "age": 24,
+        "role": "registered",
+        "eloRating": 1200
+    }
+]
