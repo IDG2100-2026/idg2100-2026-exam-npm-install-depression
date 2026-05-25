@@ -1,14 +1,31 @@
-// Source: hash.js from idg2100.backend.lt
-
 import crypto from "node:crypto";
 
-const { APP_SALT: salt } = process.env;
+const SALT_LENGTH = 16;
+const KEY_LENGTH = 64;
+const SCRYPT_PARAMS = { N: 16384, r: 8, p: 1 };
 
-export function hashPwd(pwd){
-	const s2hash = pwd + salt;
-	return crypto.createHash("md5").update(s2hash).digest("hex").toString();
+export async function hashPwd(pwd) {
+    const salt = crypto.randomBytes(SALT_LENGTH).toString('hex');
+    const derivedKey = await scryptAsync(pwd, salt, KEY_LENGTH);
+    return `${salt}:${derivedKey.toString('hex')}`;
 }
 
-export function checkPwd(pwd, existingHash){
-	return hashPwd(pwd) === existingHash;
+export async function checkPwd(pwd, storedHash) {
+    const [salt, hash] = storedHash.split(':');
+    const derivedKey = await scryptAsync(pwd, salt, KEY_LENGTH);
+    const candidateHash = derivedKey.toString('hex');
+    // Constant-time comparison to prevent timing attacks
+    return crypto.timingSafeEqual(
+        Buffer.from(hash, 'hex'),
+        Buffer.from(candidateHash, 'hex')
+    );
+}
+
+function scryptAsync(pwd, salt, keyLen) {
+    return new Promise((resolve, reject) => {
+        crypto.scrypt(pwd, salt, keyLen, SCRYPT_PARAMS, (err, key) => {
+            if (err) reject(err);
+            else resolve(key);
+        });
+    });
 }
