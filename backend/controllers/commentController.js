@@ -1,60 +1,49 @@
-import { Comment } from "../models/Comment.js";
-import { Match } from "../models/Match.js";
+import * as commentService from "../services/commentService.js";
 
-export const addComment = async (req, res) => {
+export const addMatchComment = async (req, res) => {
     try {
-        const { text } = req.body;
-        const { matchId } = req.params;
-        const authorId = req.user.id; // Fetched from JWT via verifyToken
-
-        const newComment = new Comment({
-            text,
-            author: authorId,
-            match: matchId
+        const comment = await commentService.addMatchComment({
+            text: req.body.text,
+            matchId: req.params.matchId,
+            authorId: req.user.id
         });
-        // Save comment to DB
-        await newComment.save();
-
-        // Add comment to match
-        await Match.findByIdAndUpdate(matchId, {
-            $push: { comments: newComment._id }
-        });
-
-        res.status(201).json({ message: "Comment added", comment: newComment });
+        res.status(201).json({ message: "Comment added", comment });
     } catch (err) {
-        res.status(500).json({ message: "Could not save comment", error: err.message });
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const addTournamentComment = async (req, res) => {
+    try {
+        const comment = await commentService.addTournamentComment({
+            text: req.body.text,
+            tournamentId: req.params.tournamentId,
+            authorId: req.user.id
+        });
+        res.status(201).json({ message: "Comment added", comment });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
     }
 };
 
 export const deleteComment = async (req, res) => {
     try {
-        const { commentId } = req.params;
-        const userId = req.user.id; // ID from JWT token
-        const userRole = req.user.role; // Role from token
-
-        // Finding comment to know what match it belongs to
-        const comment = await Comment.findById(commentId);
-        if (!comment) {
-            return res.status(404).json({ message: "Comment not found "});
-        }
-
-        // Check if user either owns comment or if user is admin
-        if (comment.author.toString() !== userId && userRole !== 'admin') {
-            return res.status(403).json({
-                message: "You do not have permission to delete this comment"
-            });
-        }
-
-        // Remove reference from Match model
-        await Match.findByIdAndUpdate(comment.match, {
-            $pull: { comments: commentId }
-        });
-
-        // Delete comment
-        await Comment.findByIdAndDelete(commentId);
-
-        res.status(200).json({ message: "Comment has been deleted" });
+        await commentService.deleteComment(req.params.commentId, req.user.id, req.user.role);
+        res.status(200).json({ message: "Comment deleted" });
     } catch (err) {
-        res.status(500).json({ message: "Could not delete", error: err.message });
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const getRecentComments = async (req, res) => {
+    try {
+        const { page = 1, limit = 20 } = req.query;
+        const result = await commentService.getRecentComments({
+            page: Number(page),
+            limit: Number(limit)
+        });
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
     }
 };

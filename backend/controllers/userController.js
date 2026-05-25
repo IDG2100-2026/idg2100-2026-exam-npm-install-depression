@@ -1,151 +1,116 @@
-import jwt from "jsonwebtoken";
-import { hashPwd, checkPwd } from "../utils/hash.js";
-import { User } from "../models/User.js";
-import { Match } from "../models/Match.js";
+import * as userService from "../services/userService.js";
 
-// Fetching top list based on ELO rating
-export const getLeaderboard = async (req, res) => {
+export const register = async (req, res) => {
     try {
-        // Gets all registered users
-        const players = await User.find({ role: 'registered' })
-            .sort({ eloRating: -1 }) // Highest rating first
-            .limit(10) // Top 10
-            .select('username eloRating wins totalMatches');
-
-        // Adding winRate manually before it being sent to client
-        const leaderboard = players.map(player => {
-            const winRate = player.totalMatches > 0
-                ? ((player.wins / player.totalMatches) * 100).toFixed(1) + "%"
-                : "0%";
-
-            return {
-                username: player.username,
-                elo: player.eloRating,
-                wins: player.wins,
-                total: player.totalMatches,
-                winRate: winRate
-            };
-        });
-
-        res.status(200).json(leaderboard);
+        const result = await userService.registerUser(req.body);
+        res.status(201).json({ message: "User registered successfully", user: result });
     } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-}; 
-
-// Fetching specific profile with last 10 matches
-export const getUserProfile = async (req, res) => {
-    try {
-        // Finding user
-        const user = await User.findById(req.params.id)
-            .select('-password')
-            .lean();
-            
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        // Find last 10 matches this user participated in
-        const lastMatches = await Match.find({ players: id })
-            .sort({ createdAt: -1 }) // Newest first
-            .limit(10)
-            .populate('players', 'username'); // Fetching username instead of just ID
-
-        res.status(200).json({
-            user,
-            matchHistory: lastMatches
-        });
-    } catch (err) {
-        res.status(500).json({ message: "Error with fetching profile", error: err.message });
+        res.status(err.status || 500).json({ message: err.message });
     }
 };
 
 export const login = async (req, res) => {
     try {
-        const { username, password } = req.body;
-
-        // Find user in DB based on username
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(401).json({ message: "Wrong username or password "});
-        }
-
-        // Compare password from Body with hashed password in DB
-        const isMatch = checkPwd(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: "Wrong username or password" });
-        }
-
-        if (user.isBanned) {
-            return res.status(403).json({ message: "Your account has been banned" });
-        }
-
-        // Create token with info needed in middleware
-        const token = jwt.sign(
-            { id: user._id, role: user.role, isAdmin: user.isAdmin },
-            process.env.JWT_SECRET,
-            { expiresIn: '1d' }
-        );
-
-        // Sending response to client i.e. Postman
-        res.status(200).json({
-            message: "Logged in",
-            token: token,
-            user: { 
-                id: user._id,
-                username: user.username, 
-                role: user.role,
-                isAdmin: user.isAdmin 
-            }
-        });
+        const result = await userService.loginUser(req.body, req.ip);
+        res.status(200).json({ message: "Logged in", ...result });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(err.status || 500).json({ message: err.message });
     }
 };
 
-export const register = async (req, res) => {
+export const refresh = async (req, res) => {
     try {
-        const { username, email, password, age, role } = req.body;
-
-        // Check if user already exists
-        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-        if (existingUser) {
-            return res.status(400).json({ message: "Username or e-mail is already in use" });
-        }
-
-        // Hash password before saving
-        const hashedPassword = hashPwd(password);
-
-        // Create new user with data from User model
-        const newUser = new User({
-            username,
-            email,
-            password: hashedPassword,
-            age,
-            role: role || 'registered'
-        });
-
-        await newUser.save();
-
-        res.status(201).json({
-            message: "User registered successfully",
-            user: { username: newUser.username, email: newUser.email }
-        });
+        const { refreshToken } = req.body;
+        if (!refreshToken) return res.status(400).json({ message: "Refresh token required" });
+        const result = await userService.refreshAccessToken(refreshToken, req.ip);
+        res.status(200).json(result);
     } catch (err) {
-        // Mongoose will throw error if user is too young (under 18)
-        res.status(500).json({ message: "Registration error", error: err.message });
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const logout = async (req, res) => {
+    try {
+        await userService.logoutUser(req.user.id);
+        res.status(200).json({ message: "Logged out" });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const getUserProfile = async (req, res) => {
+    try {
+        const result = await userService.getUserProfile(
+            req.params.id,
+            req.user?.id,
+            req.user?.role
+        );
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const updateUserProfile = async (req, res) => {
+    try {
+        const updated = await userService.updateUserProfile(
+            req.params.id,
+            req.user.id,
+            req.user.role,
+            req.body
+        );
+        res.status(200).json({ message: "Profile updated", user: updated });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const getLeaderboard = async (req, res) => {
+    try {
+        const leaderboard = await userService.getLeaderboard();
+        res.status(200).json(leaderboard);
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const listUsers = async (req, res) => {
+    try {
+        const { page = 1, limit = 20, search = '' } = req.query;
+        const result = await userService.listUsers({
+            page: Number(page),
+            limit: Number(limit),
+            search
+        });
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
     }
 };
 
 export const banUser = async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(
-            req.params.id,
-            { isBanned: true },
-            { new: true }
-        );
-        res.status(200).json({ message: "User banned successfully", user });
+        const result = await userService.banUser(req.params.id, true);
+        res.status(200).json({ message: "User banned", user: result });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const unbanUser = async (req, res) => {
+    try {
+        const result = await userService.banUser(req.params.id, false);
+        res.status(200).json({ message: "User unbanned", user: result });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const makeAdmin = async (req, res) => {
+    try {
+        const result = await userService.makeAdmin(req.params.id);
+        res.status(200).json({ message: "User promoted to admin", user: result });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
     }
 };
