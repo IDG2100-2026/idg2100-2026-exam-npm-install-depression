@@ -1,6 +1,8 @@
 import { Match } from "../models/Match.js";
 import { User } from "../models/User.js";
 import { calculateNewEloMultiplayer } from "../utils/eloCalculator.js";
+import { advanceTournamentRound } from "./tournamentService.js";
+import { getIO } from "../sockets/index.js";
 
 const DICE_COUNT = 5;
 const DICE_FACES = 6;
@@ -219,6 +221,26 @@ async function _finalizeGame(match) {
     match.outcome = winner.userId;
     match.status = 'completed';
     await match.save();
+
+    // If this match was part of a tournament, check whether the round is done
+    if (match.tournamentId) {
+        const result = await advanceTournamentRound(match.tournamentId);
+        const io = getIO();
+        if (io) {
+            if (result?.finished) {
+                io.of('/comments').to(`tournament:${match.tournamentId}`).emit('tournament_finished', {
+                    tournamentId: match.tournamentId,
+                    winnerId: result.winnerId
+                });
+            } else if (result?.nextRound) {
+                io.of('/comments').to(`tournament:${match.tournamentId}`).emit('tournament_round_started', {
+                    tournamentId: match.tournamentId,
+                    round: result.nextRound,
+                    matches: result.matches.map(m => ({ _id: m._id, players: m.players }))
+                });
+            }
+        }
+    }
 
     return { winnerId: winner.userId, winnerUsername: winner.username };
 }

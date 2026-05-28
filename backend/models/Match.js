@@ -35,7 +35,7 @@ const matchSchema = new mongoose.Schema({
         enum: ['betting', 'reveal'],
         default: 'betting'
     },
-    // Server-side rolls — never broadcast wholesale; each player only gets their own
+    // Server-side rolls, never broadcast wholesale; each player only gets their own
     roundRolls: [roundRollSchema],
 
     outcome: {
@@ -58,6 +58,11 @@ const matchSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Tournament',
         default: null
+    },
+    // Which round of the tournament this match belongs to (0 = not a tournament match)
+    tournamentRound: {
+        type: Number,
+        default: 0
     },
     isPrivate: { type: Boolean, default: false },
     status: {
