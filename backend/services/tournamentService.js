@@ -106,6 +106,13 @@ export async function deleteTournament(id, requesterRole) {
 }
 
 export async function joinTournament(tournamentId, userId) {
+    const caller = await User.findById(userId).select('isEmailVerified');
+    if (!caller?.isEmailVerified) {
+        const err = new Error("You must verify your email before joining a tournament");
+        err.status = 403;
+        throw err;
+    }
+
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
         const err = new Error("Tournament not found");
@@ -179,25 +186,86 @@ export async function startTournament(tournamentId) {
         throw err;
     }
 
-    const shuffled = [...tournament.participants].sort(() => Math.random() - 0.5);
-    const round1Matches = [];
+    const roundMatches = await _createRoundMatches(tournament.participants, tournament._id, 1);
 
-    for (let i = 0; i < shuffled.length; i += 2) {
-        if (shuffled[i + 1]) {
-            const match = new Match({
-                players: [shuffled[i], shuffled[i + 1]],
-                tournamentId: tournament._id,
-                status: 'waiting'
-            });
-            const saved = await match.save();
-            round1Matches.push(saved._id);
-        }
-    }
-
-    tournament.matches = round1Matches;
+    tournament.matches = roundMatches.map(m => m._id);
+    tournament.currentRound = 1;
     tournament.status = 'ongoing';
     await tournament.save();
     return tournament;
+}
+
+async function _createRoundMatches(participants, tournamentId, roundNumber) {
+    const shuffled = [...participants].sort(() => Math.random() - 0.5);
+    const created = [];
+    for (let i = 0; i < shuffled.length; i += 2) {
+        if (shuffled[i + 1]) {
+            const match = await new Match({
+                players: [shuffled[i], shuffled[i + 1]],
+                tournamentId,
+                tournamentRound: roundNumber,
+                status: 'waiting'
+            }).save();
+            created.push(match);
+        }
+    }
+    return created;
+}
+
+// Called after each tournament match completes; advances to the next round or finalizes
+export async function advanceTournamentRound(tournamentId) {
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament || tournament.status !== 'ongoing') return;
+
+    // Check if every match in the current round is completed
+    const currentRoundMatches = await Match.find({
+        tournamentId,
+        tournamentRound: tournament.currentRound
+    });
+
+    const allDone = currentRoundMatches.every(m => m.status === 'completed');
+    if (!allDone) return; // More matches still in progress
+
+    const totalRounds = tournament.format?.rounds ?? 3;
+
+    if (tournament.currentRound >= totalRounds) {
+        // All rounds done; determine winner by most match wins
+        const winCounts = {};
+        for (const match of currentRoundMatches) {
+            if (match.outcome) {
+                const id = match.outcome.toString();
+                winCounts[id] = (winCounts[id] || 0) + 1;
+            }
+        }
+
+        // Tally wins across ALL rounds
+        const allTournamentMatches = await Match.find({ tournamentId });
+        const totalWins = {};
+        for (const match of allTournamentMatches) {
+            if (match.outcome) {
+                const id = match.outcome.toString();
+                totalWins[id] = (totalWins[id] || 0) + 1;
+            }
+        }
+
+        // Player with the most wins is the tournament winner
+        const winnerId = Object.entries(totalWins)
+            .sort(([, a], [, b]) => b - a)[0]?.[0];
+
+        if (winnerId) await finalizeTournament(tournamentId, winnerId);
+        return { finished: true, winnerId };
+    }
+
+    // Start next round with the same participants
+    const nextRound = tournament.currentRound + 1;
+    const newMatches = await _createRoundMatches(tournament.participants, tournamentId, nextRound);
+
+    await Tournament.findByIdAndUpdate(tournamentId, {
+        $push: { matches: { $each: newMatches.map(m => m._id) } },
+        currentRound: nextRound
+    });
+
+    return { finished: false, nextRound, matches: newMatches };
 }
 
 export async function finalizeTournament(tournamentId, winnerId) {

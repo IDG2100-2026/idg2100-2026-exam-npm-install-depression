@@ -60,6 +60,13 @@ export async function getMatchById(id) {
 }
 
 export async function joinMatch(matchId, userId) {
+    const caller = await User.findById(userId).select('isEmailVerified');
+    if (!caller?.isEmailVerified) {
+        const err = new Error("You must verify your email before joining a match");
+        err.status = 403;
+        throw err;
+    }
+
     const match = await Match.findById(matchId);
     if (!match) {
         const err = new Error("Match not found");

@@ -106,6 +106,43 @@ export const unbanUser = async (req, res) => {
     }
 };
 
+export const verifyEmail = async (req, res) => {
+    try {
+        await userService.verifyEmail(req.params.token);
+        res.status(200).json({ message: "Email verified successfully — you can now log in" });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const resendVerification = async (req, res) => {
+    try {
+        await userService.resendVerification(req.body.email);
+        // Same message whether the email exists or not — avoids user enumeration
+        res.status(200).json({ message: "If that email is registered and unverified, a new link has been sent" });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const forgotPassword = async (req, res) => {
+    try {
+        await userService.forgotPassword(req.body.email);
+        res.status(200).json({ message: "If that email is registered, a reset link has been sent" });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const resetPassword = async (req, res) => {
+    try {
+        await userService.resetPassword(req.params.token, req.body.password);
+        res.status(200).json({ message: "Password reset successfully — please log in" });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
 export const makeAdmin = async (req, res) => {
     try {
         const result = await userService.makeAdmin(req.params.id);

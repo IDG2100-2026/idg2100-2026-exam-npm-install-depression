@@ -41,6 +41,10 @@ const tournamentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment'
     }],
+    currentRound: {
+        type: Number,
+        default: 0
+    },
     winner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
