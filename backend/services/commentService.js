@@ -1,6 +1,8 @@
 import { Comment } from "../models/Comment.js";
 import { Match } from "../models/Match.js";
 import { Tournament } from "../models/Tournament.js";
+import { getIO } from "../sockets/index.js";
+import { emitNewComment } from "../sockets/commentSocket.js";
 
 export async function addMatchComment({ text, matchId, authorId }) {
     const match = await Match.findById(matchId);
@@ -14,6 +16,7 @@ export async function addMatchComment({ text, matchId, authorId }) {
     await comment.save();
     await Match.findByIdAndUpdate(matchId, { $push: { comments: comment._id } });
     await comment.populate('author', 'username');
+    emitNewComment(getIO(), comment.toObject());
     return comment;
 }
 
@@ -29,6 +32,7 @@ export async function addTournamentComment({ text, tournamentId, authorId }) {
     await comment.save();
     await Tournament.findByIdAndUpdate(tournamentId, { $push: { comments: comment._id } });
     await comment.populate('author', 'username');
+    emitNewComment(getIO(), comment.toObject());
     return comment;
 }
 

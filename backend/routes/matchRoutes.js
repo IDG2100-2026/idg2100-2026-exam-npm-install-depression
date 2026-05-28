@@ -1,7 +1,7 @@
 import express from "express";
 import {
     createMatch, getAllMatches, getMatchById, getTopMatches,
-    joinMatch, leaveMatch, finalizeMatch, deleteMatch
+    joinMatch, leaveMatch, finalizeMatch, deleteMatch, getMatchState
 } from "../controllers/matchController.js";
 import { addMatchComment, deleteComment } from "../controllers/commentController.js";
 import { verifyToken, isAdmin } from "../middleware/authMiddleware.js";
@@ -24,6 +24,9 @@ router.patch("/:id/outcome", verifyToken, isAdmin, finalizeMatch);
 // Comments on a match
 router.post("/:matchId/comments", verifyToken, addMatchComment);
 router.delete("/comments/:commentId", verifyToken, deleteComment);
+
+// Game state restore (used on page reload)
+router.get("/:id/state", verifyToken, getMatchState);
 
 // Admin
 router.delete("/:id", verifyToken, isAdmin, deleteMatch);
