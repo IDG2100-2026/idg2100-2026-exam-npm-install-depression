@@ -1,7 +1,20 @@
 [
     {
-        "category": { "bestOf": 3, "straightsAllowed": true, "timeControl": 5 },
+        "category": { "bestOf": 3, "straightsAllowed": true, "timeControl": 30, "playerCount": 2, "buyIn": 1 },
+        "status": "completed",
         "rolls": [[1, 2, 3, 4, 5], [2, 2, 3, 3, 6]],
         "holds": [[1, 2, 3, 4, 5], []]
+    },
+    {
+        "category": { "bestOf": 5, "straightsAllowed": false, "timeControl": 10, "playerCount": 2, "buyIn": 10 },
+        "status": "waiting",
+        "rolls": [],
+        "holds": []
+    },
+    {
+        "category": { "bestOf": 7, "straightsAllowed": true, "timeControl": 90, "playerCount": 3, "buyIn": 50 },
+        "status": "waiting",
+        "rolls": [],
+        "holds": []
     }
 ]

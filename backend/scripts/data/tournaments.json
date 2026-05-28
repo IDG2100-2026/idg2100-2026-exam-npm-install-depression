@@ -1,9 +1,29 @@
 [
     {
         "title": "Gjøvik Open 2026",
-        "description": "Spanish Poker tournament for local heroes",
-        "startDate": "2026-05-15T10:00:00Z",
-        "format": { "variant": "Spanish Poker", "breakLength": 10 },
-        "trophy": { "title": "Golden Die", "imageUrl": "trophy_gold.png" }
+        "description": "Spanish Poker tournament for local heroes. All skill levels welcome.",
+        "startDate": "2026-06-15T10:00:00Z",
+        "status": "upcoming",
+        "format": { "variant": "Standard", "breakLength": 10, "rounds": 3 },
+        "rules": { "eloMin": 0, "eloMax": 9999, "buyIn": 10, "maxParticipants": 16 },
+        "trophy": { "title": "Golden Die", "imageUrl": "" }
+    },
+    {
+        "title": "Beginner's Cup",
+        "description": "A friendly tournament for newer players. No pressure, just fun!",
+        "startDate": "2026-07-01T12:00:00Z",
+        "status": "upcoming",
+        "format": { "variant": "Standard", "breakLength": 5, "rounds": 2 },
+        "rules": { "eloMin": 0, "eloMax": 1100, "buyIn": 1, "maxParticipants": 8 },
+        "trophy": { "title": "Rookie Trophy", "imageUrl": "" }
+    },
+    {
+        "title": "Spring Classic 2026",
+        "description": "A finished tournament from last season. Congratulations to the winner!",
+        "startDate": "2026-04-10T09:00:00Z",
+        "status": "finished",
+        "format": { "variant": "Standard", "breakLength": 5, "rounds": 4 },
+        "rules": { "eloMin": 0, "eloMax": 9999, "buyIn": 50, "maxParticipants": 16 },
+        "trophy": { "title": "Spring Trophy", "imageUrl": "" }
     }
 ]

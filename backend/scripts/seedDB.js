@@ -1,55 +1,65 @@
 import { User } from "../models/User.js";
 import { Match } from "../models/Match.js";
 import { Tournament } from "../models/Tournament.js";
+import { Comment } from "../models/Comment.js";
 
-// Importing raw data from JSON
 import userRawData from "./data/users.json" with { type: "json" };
 import matchRawData from "./data/matches.json" with { type: "json" };
 import tournamentRawData from "./data/tournaments.json" with { type: "json" };
 
 import { connectDB, disconnectDB } from "../config/db.config.js";
+import { hashPwd } from "../utils/hash.js";
 
 await connectDB();
 
-// Delete existing data from DB
-await User.deleteMany({});
+await Comment.deleteMany({});
 await Match.deleteMany({});
 await Tournament.deleteMany({});
-console.log("Database has been emptied");
+await User.deleteMany({});
+console.log("Database cleared");
 
-
-// Insert users
-const createdUsers = await User.insertMany(userRawData);
+// Hash passwords before inserting
+const userDocs = await Promise.all(
+    userRawData.map(async ({ password, ...rest }) => ({
+        ...rest,
+        password: await hashPwd(password)
+    }))
+);
+const createdUsers = await User.insertMany(userDocs);
 console.log(`Inserted ${createdUsers.length} users`);
 
-// Finding a couple users that can be conncected to matches/tournaments
-const player1 = createdUsers[0]._id;
-const player2 = createdUsers[1]._id;
+const admin  = createdUsers.find(u => u.role === 'admin');
+const player1 = createdUsers.find(u => u.username === 'pokerqueen67');
+const player2 = createdUsers.find(u => u.username === 'dicemaster99');
+const player3 = createdUsers.find(u => u.username === 'rollin_thor');
 
+// Insert matches and link to real user IDs
+const matchDocs = matchRawData.map((m, i) => new Match({
+    ...m,
+    players: i === 2 ? [player1._id, player2._id, player3._id] : [player1._id, player2._id],
+    outcome: m.status === 'completed' ? player1._id : undefined
+}));
+const createdMatches = await Match.insertMany(matchDocs);
+console.log(`Inserted ${createdMatches.length} matches`);
 
-// Insert matches
-const matchDocs = matchRawData.map(matchData => {
-    return new Match({
-        ...matchData,
-        players: [player1, player2], // Connect match to real user IDs
-        outcome: player1 // Winner set for test data purposes
-    });
-});
-await Match.insertMany(matchDocs);
-console.log("Test matches inserted");
+// Insert tournaments, link author and participants
+const tournamentDocs = tournamentRawData.map((t, i) => new Tournament({
+    ...t,
+    author: admin._id,
+    participants: i === 2 ? [player1._id, player2._id, player3._id] : [player1._id, player2._id],
+    winner: t.status === 'finished' ? player1._id : undefined,
+    matches: t.status === 'finished' ? [createdMatches[0]._id] : []
+}));
+const createdTournaments = await Tournament.insertMany(tournamentDocs);
+console.log(`Inserted ${createdTournaments.length} tournaments`);
 
-// Insert tournaments
-const tournamentDocs = tournamentRawData.map(tourneyData => {
-    return new Tournament({
-        ...tourneyData,
-        participants: [player1, player2], // Adding users to tournament
-        matches: [] // Starts without matches in this example
-    });
-});
-await Tournament.insertMany(tournamentDocs);
-console.log("Test tournaments inserted");
+// Seed a few comments
+const commentDocs = [
+    { text: "Great game, well played!", author: player2._id, match: createdMatches[0]._id },
+    { text: "Looking forward to this tournament!", author: player1._id, tournament: createdTournaments[0]._id }
+];
+await Comment.insertMany(commentDocs);
+console.log("Inserted sample comments");
 
-
-// Close connection
 await disconnectDB();
-console.log("Seeding finished");
+console.log("Seeding complete");

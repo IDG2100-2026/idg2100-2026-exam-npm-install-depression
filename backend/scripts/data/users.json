@@ -2,16 +2,49 @@
     {
         "username": "admin_guri",
         "email": "guri@pokerdice.no",
-        "password": "hashedPwd123",
+        "password": "Admin1234",
         "age": 33,
-        "role": "admin"
+        "role": "admin",
+        "aboutMe": "Platform administrator",
+        "points": 500
     },
     {
         "username": "pokerqueen67",
         "email": "pokerqueen67@gmail.com",
-        "password": "hashedPwd456",
+        "password": "Queen1234",
         "age": 24,
         "role": "registered",
-        "eloRating": 1200
+        "aboutMe": "I live for the dice.",
+        "points": 350,
+        "eloRatings": { "quick": 1250, "standard": 1200, "classical": 1180 },
+        "wins": 14,
+        "losses": 6,
+        "totalMatches": 20
+    },
+    {
+        "username": "dicemaster99",
+        "email": "dicemaster@example.com",
+        "password": "Dice1234",
+        "age": 30,
+        "role": "registered",
+        "aboutMe": "Strategy over luck.",
+        "points": 200,
+        "eloRatings": { "quick": 1100, "standard": 1050, "classical": 1020 },
+        "wins": 8,
+        "losses": 12,
+        "totalMatches": 20
+    },
+    {
+        "username": "rollin_thor",
+        "email": "thor@example.com",
+        "password": "Thor1234",
+        "age": 27,
+        "role": "registered",
+        "aboutMe": "By Odin's dice!",
+        "points": 150,
+        "eloRatings": { "quick": 980, "standard": 970, "classical": 960 },
+        "wins": 5,
+        "losses": 10,
+        "totalMatches": 15
     }
 ]
