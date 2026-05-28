@@ -1,37 +1,65 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { getMatchById } from '../src/api/matchesApi';
 
-const mockMatch = {
-  _id: 'match123',
-  status: 'ongoing', // waiting | ongoing | finished
-  gamePhase: 'rolling', // rolling | betting | revealing | gameEnd
+// const mockMatch = {
+//   _id: 'match123',
+//   status: 'ongoing', // waiting | ongoing | finished
+//   gamePhase: 'rolling', // rolling | betting | revealing | gameEnd
 
-  players: [
-    {
-      userId: 'u1',
-      username: 'Laura',
-      stack: 1000,
-      isCurrentTurn: true,
-      dice: ['A', 'K', 'Q', 'J', '8'],
-      heldDice: [false, true, false, false, true],
-    },
-    {
-      userId: 'u2',
-      username: 'Pedri',
-      stack: 900,
-      isCurrentTurn: false,
-      dice: ['?', '?', '?', '?', '?'],
-      heldDice: [false, false, false, false, false],
-    },
-  ],
+//   players: [
+//     {
+//       userId: 'u1',
+//       username: 'Laura',
+//       stack: 1000,
+//       isCurrentTurn: true,
+//       dice: ['A', 'K', 'Q', 'J', '8'],
+//       heldDice: [false, true, false, false, true],
+//     },
+//     {
+//       userId: 'u2',
+//       username: 'Pedri',
+//       stack: 900,
+//       isCurrentTurn: false,
+//       dice: ['?', '?', '?', '?', '?'],
+//       heldDice: [false, false, false, false, false],
+//     },
+//   ],
 
-  currentRound: 1,
-  pot: 0,
-  currentBet: 0,
-  currentTurnPlayerId: 'u1',
-};
+//   currentRound: 1,
+//   pot: 0,
+//   currentBet: 0,
+//   currentTurnPlayerId: 'u1',
+// };
 
 export default function GamePage() {
-  const [match] = useState(mockMatch);
+  // const [match] = useState(mockMatch);
+
+  const { id } = useParams();
+
+const [match, setMatch] = useState(null);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  async function loadMatch() {
+    const data = await getMatchById(id);
+
+    console.log(data);
+
+    setMatch(data.match || data);
+    setLoading(false);
+  }
+
+  loadMatch();
+}, [id]);
+
+if (loading) {
+  return <p>Loading match...</p>;
+}
+
+if (!match) {
+  return <p>Match not found.</p>;
+}
 
   return (
     <main>
@@ -40,7 +68,7 @@ export default function GamePage() {
       <section>
         <h2>Match info</h2>
         <p>Status: {match.status}</p>
-        <p>Phase: {match.gamePhase || 'No phase yet'}</p>
+        <p>Phase: {match.roundPhase || 'No phase yet'}</p>
         <p>Round: {match.currentRound}</p>
         <p>Pot: {match.pot}</p>
         <p>Current bet: {match.currentBet}</p>
@@ -52,7 +80,7 @@ export default function GamePage() {
         <OngoingRender match={match} />
       )}
 
-      {match.status === 'finished' && <FinishedRender match={match} />}
+      {match.status === 'completed' && <FinishedRender match={match} />}
     </main>
   );
 }
@@ -78,10 +106,10 @@ function OngoingRender({ match }) {
     <section>
       <h2>Game ongoing</h2>
 
-      {match.gamePhase === 'rolling' && <RollingRender match={match} />}
-      {match.gamePhase === 'betting' && <BettingRender match={match} />}
-      {match.gamePhase === 'revealing' && <RevealingRender match={match} />}
-      {match.gamePhase === 'gameEnd' && <GameEndRender match={match} />}
+      {match.roundPhase === 'rolling' && <RollingRender match={match} />}
+      {match.roundPhase === 'betting' && <BettingRender match={match} />}
+      {match.roundPhase === 'revealing' && <RevealingRender match={match} />}
+      {match.roundPhase === 'gameEnd' && <GameEndRender match={match} />}
     </section>
   );
 }

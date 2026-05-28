@@ -1,6 +1,35 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from "react";
 
 function Header() {
+   const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:4567/api/users")
+      .then(res => res.json())
+      .then(data => {
+        setUsers(data.users);
+
+        const savedUser = localStorage.getItem("userId");
+
+        if (savedUser) {
+          setSelectedUser(savedUser);
+        }
+      });
+  }, []);
+
+  function handleUserChange(e) {
+    const userId = e.target.value;
+    
+    setSelectedUser(userId);
+
+    localStorage.setItem("userId", userId);
+
+    const user = users.find(user => user._id === userId);
+    localStorage.setItem("userPoints", user.points);
+
+  }
 
   return (
     <header>
@@ -14,7 +43,17 @@ function Header() {
         <Link to="/profile/:id">Profile</Link>
         <Link to="/login">Login</Link>
         <Link to="/admin">Admin</Link>
-        <h2>(Header)</h2>
+
+        <select value={selectedUser} onChange={handleUserChange}>
+        <option value="">Select user</option>
+
+        {users.map(user => (
+          <option key={user._id} value={user._id}>
+            {user.username}
+          </option>
+        ))}
+
+      </select>
       </nav>
     </header>
   );

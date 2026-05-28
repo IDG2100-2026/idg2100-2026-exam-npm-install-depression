@@ -1,22 +1,23 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { tournaments as mockTournaments} from '../src/data/mockTournaments';
-// import { getTournaments } from '../src/api/tournamentsApi';
+// import { tournaments as mockTournaments} from '../src/data/mockTournaments';
+import { getTournaments } from '../src/api/tournamentsApi';
 
 
 export default function TournamentListPage() {
-    const [tournaments, setTournaments] = useState(mockTournaments);
+    const [tournaments, setTournaments] = useState([]);
 
   useEffect(() => {
 
-    /*
+    
     async function loadTournaments() {
       const data = await getTournaments();
-      setTournaments(data);
+      console.log(data);
+      setTournaments(data.tournaments);
     }
 
     loadTournaments();
-    */
+    
   }, []);
 
   //SEARCH BAR
@@ -29,7 +30,7 @@ export default function TournamentListPage() {
   }
 
   return tournament.title.toLowerCase().includes(searchTerm.toLowerCase());
-});
+  });
 
   //SORTING
 
