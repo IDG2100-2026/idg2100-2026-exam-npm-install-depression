@@ -41,7 +41,7 @@
         "age": 27,
         "role": "registered",
         "aboutMe": "By Odin's dice!",
-        "points": 150,
+        "points": 49,
         "eloRatings": { "quick": 980, "standard": 970, "classical": 960 },
         "wins": 5,
         "losses": 10,

@@ -8,6 +8,7 @@ import {
 import { verifyToken, verifyTokenOptional, isAdmin } from "../middleware/authMiddleware.js";
 import { registerRules, loginRules, updateProfileRules } from "../validators/authValidators.js";
 import { validate } from "../middleware/validate.js";
+import { User } from "../models/User.js";
 
 const router = express.Router();
 
@@ -25,7 +26,9 @@ router.get("/:id", verifyTokenOptional, getUserProfile);
 router.patch("/:id", verifyToken, updateProfileRules, validate, updateUserProfile);
 
 // Admin — user management
-router.get("/", verifyToken, isAdmin, listUsers);
+// router.get("/", verifyToken, isAdmin, listUsers);
+// TEMP dev route — fake user selector
+router.get("/", listUsers);
 router.patch("/:id/ban", verifyToken, isAdmin, banUser);
 router.patch("/:id/unban", verifyToken, isAdmin, unbanUser);
 router.patch("/:id/role", verifyToken, isAdmin, makeAdmin);
