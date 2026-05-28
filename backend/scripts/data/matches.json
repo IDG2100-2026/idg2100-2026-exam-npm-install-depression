@@ -16,5 +16,11 @@
         "status": "waiting",
         "rolls": [],
         "holds": []
+    },
+    {
+        "category": { "bestOf": 1, "straightsAllowed": false, "timeControl": 5, "playerCount": 2, "buyIn": 0 },
+        "status": "ongoing",
+        "rolls": [[6, 6, 6, 6, 6], [1, 1, 1, 1, 1]],
+        "holds": [[6, 6, 6, 6, 6], []]
     }
 ]
