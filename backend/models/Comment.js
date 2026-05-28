@@ -25,11 +25,10 @@ const commentSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-commentSchema.pre('validate', function (next) {
+commentSchema.pre('validate', async function () {
     if (!this.match && !this.tournament) {
-        return next(new Error('A comment must belong to a match or a tournament'));
+        throw new Error('A comment must belong to a match or a tournament');
     }
-    next();
 });
 
 export const Comment = mongoose.model('Comment', commentSchema);

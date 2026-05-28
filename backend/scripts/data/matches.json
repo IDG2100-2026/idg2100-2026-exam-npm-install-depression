@@ -18,7 +18,7 @@
         "holds": []
     },
     {
-        "category": { "bestOf": 1, "straightsAllowed": false, "timeControl": 5, "playerCount": 2, "buyIn": 0 },
+        "category": { "bestOf": 3, "straightsAllowed": false, "timeControl": 10, "playerCount": 2, "buyIn": 1 },
         "status": "playing",
         "rolls": [[6, 6, 6, 6, 6], [1, 1, 1, 1, 1]],
         "holds": [[6, 6, 6, 6, 6], []]
