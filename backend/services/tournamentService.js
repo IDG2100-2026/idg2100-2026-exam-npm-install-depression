@@ -106,6 +106,13 @@ export async function deleteTournament(id, requesterRole) {
 }
 
 export async function joinTournament(tournamentId, userId) {
+    const caller = await User.findById(userId).select('isEmailVerified');
+    if (!caller?.isEmailVerified) {
+        const err = new Error("You must verify your email before joining a tournament");
+        err.status = 403;
+        throw err;
+    }
+
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
         const err = new Error("Tournament not found");

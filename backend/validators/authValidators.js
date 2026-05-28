@@ -26,6 +26,14 @@ export const loginRules = [
     body('password').notEmpty().withMessage('Password is required')
 ];
 
+export const resetPasswordRules = [
+    body('password')
+        .notEmpty().withMessage('Password is required')
+        .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+        .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
+        .matches(/[0-9]/).withMessage('Password must contain at least one digit')
+];
+
 export const updateProfileRules = [
     body('email')
         .optional()

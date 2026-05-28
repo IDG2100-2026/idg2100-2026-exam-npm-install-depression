@@ -3,6 +3,9 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 import { Match } from "../models/Match.js";
 import { hashPwd, checkPwd } from "../utils/hash.js";
+import { sendVerificationEmail, sendPasswordResetEmail } from "../utils/mailer.js";
+
+const TOKEN_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
 
 const ACCESS_TOKEN_EXPIRY = '15m';
 const REFRESH_TOKEN_EXPIRY = '7d';
@@ -28,8 +31,16 @@ export async function registerUser({ username, email, password, age }) {
     }
 
     const hashedPassword = await hashPwd(password);
-    const user = new User({ username, email, password: hashedPassword, age });
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const user = new User({
+        username, email, password: hashedPassword, age,
+        verificationToken,
+        verificationTokenExpiry: new Date(Date.now() + TOKEN_EXPIRY_MS)
+    });
     await user.save();
+
+    await sendVerificationEmail(email, verificationToken);
+
     return { username: user.username, email: user.email };
 }
 
@@ -192,6 +203,68 @@ export async function makeAdmin(targetId) {
     user.role = 'admin';
     await user.save();
     return { id: user._id, username: user.username, role: user.role };
+}
+
+export async function verifyEmail(token) {
+    const user = await User.findOne({ verificationToken: token });
+    if (!user) {
+        const err = new Error("Invalid verification link");
+        err.status = 400;
+        throw err;
+    }
+    if (user.verificationTokenExpiry < new Date()) {
+        const err = new Error("Verification link has expired — please request a new one");
+        err.status = 400;
+        throw err;
+    }
+    user.isEmailVerified = true;
+    user.verificationToken = null;
+    user.verificationTokenExpiry = null;
+    await user.save();
+}
+
+export async function resendVerification(email) {
+    const user = await User.findOne({ email });
+    // Always respond the same way to avoid leaking whether the email exists
+    if (!user || user.isEmailVerified) return;
+
+    const token = crypto.randomBytes(32).toString('hex');
+    user.verificationToken = token;
+    user.verificationTokenExpiry = new Date(Date.now() + TOKEN_EXPIRY_MS);
+    await user.save();
+    await sendVerificationEmail(email, token);
+}
+
+export async function forgotPassword(email) {
+    const user = await User.findOne({ email });
+    // Always respond the same way to avoid leaking whether the email exists
+    if (!user) return;
+
+    const token = crypto.randomBytes(32).toString('hex');
+    user.passwordResetToken = token;
+    user.passwordResetTokenExpiry = new Date(Date.now() + TOKEN_EXPIRY_MS);
+    await user.save();
+    await sendPasswordResetEmail(email, token);
+}
+
+export async function resetPassword(token, newPassword) {
+    const user = await User.findOne({ passwordResetToken: token });
+    if (!user) {
+        const err = new Error("Invalid or expired reset link");
+        err.status = 400;
+        throw err;
+    }
+    if (user.passwordResetTokenExpiry < new Date()) {
+        const err = new Error("Reset link has expired — please request a new one");
+        err.status = 400;
+        throw err;
+    }
+    user.password = await hashPwd(newPassword);
+    user.passwordResetToken = null;
+    user.passwordResetTokenExpiry = null;
+    // Invalidate any active refresh tokens so old sessions must re-login
+    user.refreshToken = null;
+    await user.save();
 }
 
 export async function listUsers({ page = 1, limit = 20, search = '' }) {
