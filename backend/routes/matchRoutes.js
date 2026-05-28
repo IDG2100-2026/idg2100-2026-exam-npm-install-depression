@@ -1,25 +1,34 @@
-import { verifyToken, isAdmin } from "../middleware/authMiddleware.js";
 import express from "express";
+import {
+    createMatch, getAllMatches, getMatchById, getTopMatches,
+    joinMatch, leaveMatch, finalizeMatch, deleteMatch, getMatchState
+} from "../controllers/matchController.js";
+import { addMatchComment, deleteComment } from "../controllers/commentController.js";
+import { verifyToken, isAdmin } from "../middleware/authMiddleware.js";
+import { createMatchRules, paginationRules } from "../validators/matchValidators.js";
+import { validate } from "../middleware/validate.js";
+
 const router = express.Router();
-import { createMatch, joinMatch, updateMatch, getMatchById, getTopEloMatches, getAllMatches, getCategoryLeaderboard, deleteMatch } from "../controllers/matchController.js";
-import { addComment, deleteComment } from "../controllers/commentController.js";
 
-// Accessable to everyone
-router.get("/", getAllMatches);
-router.get("/top-elo", getTopEloMatches);
-router.get("/category", getCategoryLeaderboard);
+// Public
+router.get("/", paginationRules, validate, getAllMatches);
+router.get("/top", getTopMatches);
+router.get("/:id", getMatchById);
 
-// Only logged in users can register/join match or comment
-router.post("/register", verifyToken, createMatch);
-router.put("/:id/join", verifyToken, joinMatch);
-router.put("/:id", verifyToken, updateMatch);
-router.get("/:id", verifyToken, getMatchById);
-router.post("/:matchId/comments", verifyToken, addComment);
-router.delete("/comments/:commentId", verifyToken, deleteComment); // Deleting specific comment
+// Authenticated
+router.post("/", verifyToken, createMatchRules, validate, createMatch);
+router.post("/:id/players", verifyToken, joinMatch);          // join
+router.delete("/:id/players/me", verifyToken, leaveMatch);    // leave
+router.patch("/:id/outcome", verifyToken, isAdmin, finalizeMatch);
 
-// Only admin can delete match
-router.delete("/:id", verifyToken, isAdmin, deleteMatch); // For admin deletion of matches
+// Comments on a match
+router.post("/:matchId/comments", verifyToken, addMatchComment);
+router.delete("/comments/:commentId", verifyToken, deleteComment);
 
+// Game state restore (used on page reload)
+router.get("/:id/state", verifyToken, getMatchState);
 
+// Admin
+router.delete("/:id", verifyToken, isAdmin, deleteMatch);
 
 export default router;

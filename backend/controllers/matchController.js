@@ -1,4 +1,5 @@
 import * as matchService from "../services/matchService.js";
+import * as gameService from "../services/gameService.js";
 
 export const createMatch = async (req, res) => {
     try {
@@ -71,6 +72,15 @@ export const finalizeMatch = async (req, res) => {
         if (!winnerId) return res.status(400).json({ message: "winnerId is required" });
         const match = await matchService.finalizeMatch(req.params.id, winnerId);
         res.status(200).json({ message: "Match finalized", match });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
+export const getMatchState = async (req, res) => {
+    try {
+        const result = await gameService.getMatchState(req.params.id, req.user.id);
+        res.status(200).json(result);
     } catch (err) {
         res.status(err.status || 500).json({ message: err.message });
     }

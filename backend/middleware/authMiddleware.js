@@ -1,19 +1,28 @@
 import jwt from "jsonwebtoken";
+import { SecurityIncident } from "../models/SecurityIncident.js";
 
-export const verifyToken = (req, res, next) => {
-    // Get token from Header
+export const verifyToken = async (req, res, next) => {
     const authHeader = req.headers.authorization;
-
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: "No access, missing token" });
     }
 
     const token = authHeader.split(' ')[1];
-
     try {
-        // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // Add user data in 'req' so controllers can use it
+
+        // IP mismatch check; record incident and reject
+        if (decoded.ip && decoded.ip !== req.ip) {
+            await SecurityIncident.create({
+                type: 'ip_mismatch',
+                ip: req.ip,
+                userAgent: req.headers['user-agent'] || '',
+                userId: decoded.id,
+                details: `Token issued for IP ${decoded.ip}, request from ${req.ip}`
+            }).catch(() => {}); // non-critical, don't block the error handler
+            return res.status(401).json({ message: "Token IP mismatch — please log in again" });
+        }
+
         req.user = decoded;
         next();
     } catch (err) {
@@ -21,11 +30,23 @@ export const verifyToken = (req, res, next) => {
     }
 };
 
-// Check if user is admin
-export const isAdmin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-        next();
-    } else {
-        res.status(403).json({ message: "Admin access required" });
+// For routes where auth is optional (e.g. profile view; email visibility differs)
+export const verifyTokenOptional = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        req.user = null;
+        return next();
     }
+    const token = authHeader.split(' ')[1];
+    try {
+        req.user = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+        req.user = null;
+    }
+    next();
+};
+
+export const isAdmin = (req, res, next) => {
+    if (req.user?.role === 'admin') return next();
+    res.status(403).json({ message: "Admin access required" });
 };
