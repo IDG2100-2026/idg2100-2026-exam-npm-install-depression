@@ -10,6 +10,7 @@ import { apiLimiter } from "./middleware/rateLimiter.js";
 import userRoutes from "./routes/userRoutes.js";
 import matchRoutes from "./routes/matchRoutes.js";
 import tournamentRoutes from "./routes/tournamentRoutes.js";
+import statsRoutes from "./routes/statsRoutes.js";
 
 import jwt from "jsonwebtoken";
 import { setIO } from "./sockets/index.js";
@@ -35,6 +36,7 @@ app.use("/api", apiLimiter);
 app.use("/api/users", userRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/tournaments", tournamentRoutes);
+app.use("/api/stats", statsRoutes);
 app.use("/uploads", express.static("uploads"));
 
 // 404 handler
