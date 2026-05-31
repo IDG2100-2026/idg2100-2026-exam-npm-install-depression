@@ -7,6 +7,7 @@ import {
     banUser, unbanUser, makeAdmin
 } from "../controllers/userController.js";
 import { verifyToken, verifyTokenOptional, isAdmin } from "../middleware/authMiddleware.js";
+import { upload } from "../middleware/uploadMiddleware.js";
 import { registerRules, loginRules, updateProfileRules, resetPasswordRules } from "../validators/authValidators.js";
 import { validate } from "../middleware/validate.js";
 import { User } from "../models/User.js";
@@ -35,7 +36,7 @@ router.get("/directory", listUsersPublic);
 
 // Profile — optional auth so email is hidden from strangers
 router.get("/:id", verifyTokenOptional, getUserProfile);
-router.patch("/:id", verifyToken, updateProfileRules, validate, updateUserProfile);
+router.patch("/:id", verifyToken, upload.single('profileImage'), updateProfileRules, validate, updateUserProfile);
 
 // Admin — user management
 // router.get("/", verifyToken, isAdmin, listUsers);

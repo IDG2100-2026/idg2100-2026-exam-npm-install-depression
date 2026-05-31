@@ -123,17 +123,26 @@ export async function getUserProfile(id, requesterId, requesterRole) {
 
     const page = 1;
     const limit = 10;
-    const matchHistory = await Match.find({ players: id })
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .populate('players', 'username')
-        .populate('outcome', 'username')
-        .lean();
+    const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const totalMatches = await Match.countDocuments({ players: id });
+    const [matchHistory, totalMatches, winsLastMonth, lossesLastMonth] = await Promise.all([
+        Match.find({ players: id })
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .populate('players', 'username')
+            .populate('outcome', 'username')
+            .lean(),
+        Match.countDocuments({ players: id }),
+        Match.countDocuments({ outcome: id, createdAt: { $gte: oneMonthAgo } }),
+        Match.countDocuments({
+            players: id,
+            outcome: { $ne: id, $exists: true },
+            createdAt: { $gte: oneMonthAgo }
+        })
+    ]);
 
-    return { user, matchHistory, totalMatches, page, limit };
+    return { user, matchHistory, totalMatches, page, limit, winsLastMonth, lossesLastMonth };
 }
 
 export async function updateUserProfile(id, requesterId, requesterRole, updates) {

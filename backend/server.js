@@ -11,6 +11,7 @@ import userRoutes from "./routes/userRoutes.js";
 import matchRoutes from "./routes/matchRoutes.js";
 import tournamentRoutes from "./routes/tournamentRoutes.js";
 import statsRoutes from "./routes/statsRoutes.js";
+import { scheduleWeeklyPoints } from "./services/pointsService.js";
 
 import jwt from "jsonwebtoken";
 import { setIO } from "./sockets/index.js";
@@ -75,6 +76,7 @@ async function startServer() {
         await connectDB();
         httpServer.listen(PORT, () => {
             console.log(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
+            scheduleWeeklyPoints();
         });
     } catch (err) {
         console.error("Could not start server:", err.message);

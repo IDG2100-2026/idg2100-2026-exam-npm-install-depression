@@ -53,11 +53,13 @@ export const getUserProfile = async (req, res) => {
 
 export const updateUserProfile = async (req, res) => {
     try {
+        const updates = { ...req.body };
+        if (req.file) updates.profileImage = `/uploads/${req.file.filename}`;
         const updated = await userService.updateUserProfile(
             req.params.id,
             req.user.id,
             req.user.role,
-            req.body
+            updates
         );
         res.status(200).json({ message: "Profile updated", user: updated });
     } catch (err) {
