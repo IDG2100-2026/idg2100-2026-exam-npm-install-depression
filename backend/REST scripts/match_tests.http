@@ -1,42 +1,73 @@
 @hostname = localhost
-@port= 4567
+@port = 4567
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 
-# From auth_tests
-@userId = <Paste user id>
-@adminId = <Paste admin id>
-@userToken = <Paste user token>
-@adminToken = <Paste admin token>
-
-### Get all matches
-GET http://{{host}}/api/matches
-
-### Get top list based on category (bestOf and timeControl)
-GET http://{{host}}/api/matches/category?bestOf=3&timeControl=5
+# Run auth_tests.http first and paste tokens/IDs here
+@userToken  = <Paste accessToken from auth_tests login>
+@adminToken = <Paste accessToken from auth_tests adminLogin>
+@userId     = <Paste user id>
 
 
-### Register new match
+### Get all matches (public, paginated)
+GET http://{{host}}/api/matches?page=1&limit=10
+
+### Filter by time control
+GET http://{{host}}/api/matches?timeControl=30
+
+### Filter by status
+GET http://{{host}}/api/matches?status=waiting
+
+### Top open matches (homepage widget)
+GET http://{{host}}/api/matches/top
+
+
+### Create a match (auth required)
 # @name createMatch
-POST http://{{host}}/api/matches/register
+POST http://{{host}}/api/matches
 Authorization: Bearer {{userToken}}
 Content-Type: {{contentType}}
 
 {
-    "player1": "{{userId}}",
-    "player2": "{{adminId}}",
-    "winnerId": "{{userId}}",
     "category": {
         "bestOf": 3,
-        "timeCOntrol": 5
+        "straightsAllowed": true,
+        "timeControl": 30,
+        "playerCount": 2,
+        "buyIn": 1
     }
 }
 
-###
-
 @matchId = {{createMatch.response.body.match._id}}
 
-### Add comment to match
+
+### Get match by ID
+GET http://{{host}}/api/matches/{{matchId}}
+
+### Get match game state (for page reload restore)
+GET http://{{host}}/api/matches/{{matchId}}/state
+Authorization: Bearer {{userToken}}
+
+
+### Join a match
+POST http://{{host}}/api/matches/{{matchId}}/players
+Authorization: Bearer {{userToken}}
+
+### Leave a match (before it starts)
+DELETE http://{{host}}/api/matches/{{matchId}}/players/me
+Authorization: Bearer {{userToken}}
+
+### Finalize match with a winner (admin only)
+PATCH http://{{host}}/api/matches/{{matchId}}/outcome
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+    "winnerId": "{{userId}}"
+}
+
+
+### Add a comment to a match
 # @name createComment
 POST http://{{host}}/api/matches/{{matchId}}/comments
 Authorization: Bearer {{userToken}}
@@ -46,14 +77,21 @@ Content-Type: {{contentType}}
     "text": "This match was legendary!"
 }
 
-### Save ID from comment created above
 @commentId = {{createComment.response.body.comment._id}}
 
-### Delete comment
+### Delete a comment (owner or admin)
 DELETE http://{{host}}/api/matches/comments/{{commentId}}
 Authorization: Bearer {{userToken}}
 
 
-### Delete a whole match (admin only)
+### Delete a match (admin only)
 DELETE http://{{host}}/api/matches/{{matchId}}
+Authorization: Bearer {{adminToken}}
+
+
+### Platform activity stats (public)
+GET http://{{host}}/api/stats
+
+### Admin dashboard stats (admin only)
+GET http://{{host}}/api/stats/admin
 Authorization: Bearer {{adminToken}}

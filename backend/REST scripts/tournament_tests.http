@@ -3,15 +3,29 @@
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 
-# Token variables from auth_tests
-@userToken = <Paste normal user token from auth_tests here>
-@adminToken = <Paste admin token here>
-
-### See all tournaments
-GET http://{{host}}/api/tournaments
+# Run auth_tests.http first and paste tokens/IDs here
+@userToken  = <Paste accessToken from auth_tests login>
+@adminToken = <Paste accessToken from auth_tests adminLogin>
+@userId     = <Paste user id>
 
 
-### Create tournament with trophy image (Multer)
+### Get all tournaments (public, paginated)
+GET http://{{host}}/api/tournaments?page=1&limit=10
+
+### Filter by status
+GET http://{{host}}/api/tournaments?status=upcoming
+
+### Sort by title descending
+GET http://{{host}}/api/tournaments?sortBy=title&order=desc
+
+### Search by title (min 3 chars)
+GET http://{{host}}/api/tournaments?search=gj%C3%B8vik
+
+### Upcoming tournaments (homepage widget, max 5)
+GET http://{{host}}/api/tournaments/upcoming
+
+
+### Create tournament (admin only, multipart for optional trophy image)
 # @name createTournament
 POST http://{{host}}/api/tournaments
 Authorization: Bearer {{adminToken}}
@@ -20,25 +34,84 @@ Content-Type: multipart/form-data; boundary=boundary
 --boundary
 Content-Disposition: form-data; name="title"
 
-Friday Poker
+Summer Open 2026
+--boundary
+Content-Disposition: form-data; name="description"
+
+A fun summer tournament for all skill levels.
 --boundary
 Content-Disposition: form-data; name="startDate"
 
-2026-04-19
+2026-08-01T10:00:00Z
 --boundary
-Content-Disposition: form-data; name="image"; filename="trophy.png"
-Content-Type: image/png
+Content-Disposition: form-data; name="rules[buyIn]"
 
-< ./test-assets/trophy.png
+10
+--boundary
+Content-Disposition: form-data; name="rules[maxParticipants]"
+
+8
+--boundary
+Content-Disposition: form-data; name="format[rounds]"
+
+3
 --boundary--
 
 @tournamentId = {{createTournament.response.body._id}}
 
-### Start tournament (generates brackets/matches)
-POST http://{{host}}/api/tournaments/{{tournamentId}}/start
+
+### Get tournament by ID
+GET http://{{host}}/api/tournaments/{{tournamentId}}
+
+### Update tournament (admin only)
+PATCH http://{{host}}/api/tournaments/{{tournamentId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+    "description": "Updated description for the tournament."
+}
+
+### Cancel a tournament (admin sets status to cancelled)
+PATCH http://{{host}}/api/tournaments/{{tournamentId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+    "status": "cancelled"
+}
+
+
+### Join a tournament
+POST http://{{host}}/api/tournaments/{{tournamentId}}/participants
+Authorization: Bearer {{userToken}}
+
+### Leave a tournament
+DELETE http://{{host}}/api/tournaments/{{tournamentId}}/participants/me
+Authorization: Bearer {{userToken}}
+
+### Start a tournament (admin only — generates round 1 matches)
+PATCH http://{{host}}/api/tournaments/{{tournamentId}}/status
 Authorization: Bearer {{adminToken}}
 
 
-### Join tournament
-POST http://{{host}}/api/tournaments/{{tournamentId}}/join
+### Add a comment to a tournament
+# @name createTournamentComment
+POST http://{{host}}/api/tournaments/{{tournamentId}}/comments
 Authorization: Bearer {{userToken}}
+Content-Type: {{contentType}}
+
+{
+    "text": "Looking forward to this tournament!"
+}
+
+@tournamentCommentId = {{createTournamentComment.response.body.comment._id}}
+
+### Delete a tournament comment (owner or admin)
+DELETE http://{{host}}/api/tournaments/comments/{{tournamentCommentId}}
+Authorization: Bearer {{userToken}}
+
+
+### Delete a tournament (admin only)
+DELETE http://{{host}}/api/tournaments/{{tournamentId}}
+Authorization: Bearer {{adminToken}}

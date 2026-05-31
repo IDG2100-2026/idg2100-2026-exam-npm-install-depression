@@ -4,67 +4,118 @@
 @contentType = application/json
 
 
-### Register a new user (normal user)
+### Register a new user
 POST http://{{host}}/api/users/register
 Content-Type: {{contentType}}
 
 {
     "username": "TestPlayer123",
-    "password": "testPwd123",
+    "password": "TestPwd123",
     "email": "test123@example.com",
-    "age": 30,
-    "role": "registered"
+    "age": 30
 }
 
-### Login to get token (normal user)
+### Login (saves accessToken + refreshToken)
 # @name login
 POST http://{{host}}/api/users/login
 Content-Type: {{contentType}}
 
 {
     "username": "TestPlayer123",
-    "password": "testPwd123"
+    "password": "TestPwd123"
 }
 
-
-### Register an admin user
-POST http://{{host}}/api/users/register
-Content-Type: {{contentType}}
-
-{
-    "username": "Adminadmin",
-    "password": "abc123",
-    "email": "adminadmin@test.com",
-    "age": 29,
-    "role": "admin"
-}
-
-### Login as admin to get admin token
+### Login as seeded admin
 # @name adminLogin
 POST http://{{host}}/api/users/login
 Content-Type: {{contentType}}
 
 {
-    "username": "Adminadmin",
-    "password": "abc123"
+    "username": "admin_guri",
+    "password": "Admin1234"
 }
 
-### Variable for tokens used in the other files
-@userToken = {{login.response.body.token}}
-@adminToken = {{adminLogin.response.body.token}}
+### Token variables used across all test files
+@userToken    = {{login.response.body.accessToken}}
+@refreshToken = {{login.response.body.refreshToken}}
+@adminToken   = {{adminLogin.response.body.accessToken}}
+@userId       = {{login.response.body.user.id}}
+@adminId      = {{adminLogin.response.body.user.id}}
 
 
-### Get global top list (leaderboard)
+### Refresh access token
+POST http://{{host}}/api/users/refresh
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "{{refreshToken}}"
+}
+
+### Logout (invalidates refresh token)
+POST http://{{host}}/api/users/logout
+Authorization: Bearer {{userToken}}
+
+
+### Verify email (paste token from Mailtrap link)
+GET http://{{host}}/api/users/verify/PASTE_TOKEN_HERE
+
+
+### Resend verification email
+POST http://{{host}}/api/users/resend-verification
+Content-Type: {{contentType}}
+
+{
+    "email": "test123@example.com"
+}
+
+### Forgot password
+POST http://{{host}}/api/users/forgot-password
+Content-Type: {{contentType}}
+
+{
+    "email": "test123@example.com"
+}
+
+### Reset password (paste token from Mailtrap link)
+POST http://{{host}}/api/users/reset-password/PASTE_TOKEN_HERE
+Content-Type: {{contentType}}
+
+{
+    "password": "NewPwd999"
+}
+
+
+### Leaderboard (public)
 GET http://{{host}}/api/users/leaderboard
 
-### Get a specific user profile
-# Replace {{userId}} with actual ID from DB
-GET http://{{host}}/api/users/profile/{{login.response.body.user.id}}
+### Public user directory (slim list for dev user-picker)
+GET http://{{host}}/api/users/directory
 
-###
-@userId = {{login.response.body.user.id}}
-@adminId = {{adminLogin.response.body.user.id}}
+### Get own profile
+GET http://{{host}}/api/users/{{userId}}
+Authorization: Bearer {{userToken}}
+
+### Update profile (JSON fields)
+PATCH http://{{host}}/api/users/{{userId}}
+Authorization: Bearer {{userToken}}
+Content-Type: {{contentType}}
+
+{
+    "aboutMe": "Updated bio here"
+}
 
 ### Ban a user (admin only)
-PUT http://{{host}}/api/users/{{userId}}/ban
+PATCH http://{{host}}/api/users/{{userId}}/ban
+Authorization: Bearer {{adminToken}}
+
+### Unban a user (admin only)
+PATCH http://{{host}}/api/users/{{userId}}/unban
+Authorization: Bearer {{adminToken}}
+
+### Promote user to admin (admin only)
+PATCH http://{{host}}/api/users/{{userId}}/role
+Authorization: Bearer {{adminToken}}
+
+### List all users (admin only)
+GET http://{{host}}/api/users?page=1&limit=20
 Authorization: Bearer {{adminToken}}
