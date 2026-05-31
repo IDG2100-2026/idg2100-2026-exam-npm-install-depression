@@ -32,8 +32,8 @@ const matchSchema = new mongoose.Schema({
     currentRound: { type: Number, default: 0 },
     roundPhase: {
         type: String,
-        enum: ['betting', 'reveal'],
-        default: 'betting'
+        enum: ['rolling', 'betting', 'revealing', 'gameEnd'],
+        default: 'rolling'
     },
     // Server-side rolls, never broadcast wholesale; each player only gets their own
     roundRolls: [roundRollSchema],
@@ -67,7 +67,7 @@ const matchSchema = new mongoose.Schema({
     isPrivate: { type: Boolean, default: false },
     status: {
         type: String,
-        enum: ['waiting', 'playing', 'completed', 'abandoned'],
+        enum: ['waiting', 'ongoing', 'completed', 'abandoned'],
         default: 'waiting'
     }
 }, { timestamps: true });

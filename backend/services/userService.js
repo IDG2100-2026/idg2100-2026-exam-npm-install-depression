@@ -267,6 +267,14 @@ export async function resetPassword(token, newPassword) {
     await user.save();
 }
 
+// Slim public list, used by frontend dev user-picker; no sensitive fields
+export async function listUsersPublic() {
+    return User.find({ isBanned: false })
+        .select('_id username points')
+        .sort({ username: 1 })
+        .lean();
+}
+
 export async function listUsers({ page = 1, limit = 20, search = '' }) {
     const query = search
         ? { username: { $regex: search, $options: 'i' } }

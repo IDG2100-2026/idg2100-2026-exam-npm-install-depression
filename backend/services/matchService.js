@@ -100,7 +100,7 @@ export async function joinMatch(matchId, userId) {
 
     match.players.push(userId);
     if (match.players.length >= maxPlayers) {
-        match.status = 'playing';
+        match.status = 'ongoing';
     }
     await match.save();
     return match;
@@ -136,7 +136,7 @@ export async function finalizeMatch(matchId, winnerId) {
         err.status = 404;
         throw err;
     }
-    if (match.status !== 'playing') {
+    if (match.status !== 'ongoing') {
         const err = new Error("Match is not in progress");
         err.status = 400;
         throw err;

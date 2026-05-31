@@ -50,7 +50,7 @@ export async function startGame(matchId) {
         currentRoundBet: 0,
         heldDice: []
     }));
-    match.status = 'playing';
+    match.status = 'ongoing';
     match.pot = 0;
     match.currentBet = 0;
     match.currentRound = 0;
@@ -64,7 +64,7 @@ export async function startRound(matchId) {
     if (!match) throw Object.assign(new Error("Match not found"), { status: 404 });
 
     match.currentRound += 1;
-    match.roundPhase = 'betting';
+    match.roundPhase = 'rolling';
     match.pot = 0;
     match.currentBet = 0;
 
@@ -90,7 +90,7 @@ export async function startRound(matchId) {
 export async function holdDice(matchId, userId, heldIndices) {
     const match = await Match.findById(matchId);
     if (!match) throw Object.assign(new Error("Match not found"), { status: 404 });
-    if (match.roundPhase !== 'betting') throw Object.assign(new Error("Not in betting phase"), { status: 400 });
+    if (!['rolling', 'betting'].includes(match.roundPhase)) throw Object.assign(new Error("Not in an active round phase"), { status: 400 });
 
     const ps = match.playerStates.find(p => p.userId.toString() === userId);
     if (!ps) throw Object.assign(new Error("Player not in match"), { status: 403 });
@@ -106,7 +106,7 @@ export async function holdDice(matchId, userId, heldIndices) {
 export async function placeBet(matchId, userId, amount) {
     const match = await Match.findById(matchId);
     if (!match) throw Object.assign(new Error("Match not found"), { status: 404 });
-    if (match.roundPhase !== 'betting') throw Object.assign(new Error("Not in betting phase"), { status: 400 });
+    if (!['rolling', 'betting'].includes(match.roundPhase)) throw Object.assign(new Error("Not in an active round phase"), { status: 400 });
 
     const ps = match.playerStates.find(p => p.userId.toString() === userId);
     if (!ps) throw Object.assign(new Error("Player not in match"), { status: 403 });
@@ -114,11 +114,14 @@ export async function placeBet(matchId, userId, amount) {
     if (amount < match.currentBet) throw Object.assign(new Error("Bet must meet or exceed the current bet"), { status: 400 });
     if (amount > ps.stack) throw Object.assign(new Error("Insufficient stack"), { status: 400 });
 
-    const extra = amount - ps.currentRoundBet; // only the new chips going in
+    const extra = amount - ps.currentRoundBet;
     ps.stack -= extra;
     ps.currentRoundBet = amount;
     match.pot += extra;
     if (amount > match.currentBet) match.currentBet = amount;
+
+    // Transition from rolling to betting on first player action
+    if (match.roundPhase === 'rolling') match.roundPhase = 'betting';
 
     match.markModified('playerStates');
     await match.save();
@@ -139,6 +142,7 @@ export async function fold(matchId, userId) {
 
     ps.hasFolded = true;
     // Folded chips stay in the pot; no refund
+    if (match.roundPhase === 'rolling') match.roundPhase = 'betting';
     match.markModified('playerStates');
     await match.save();
 
@@ -157,7 +161,7 @@ function _allPlayersActed(match) {
 
 export async function revealRound(matchId) {
     const match = await Match.findById(matchId);
-    match.roundPhase = 'reveal';
+    match.roundPhase = 'revealing';
     await match.save();
 
     // Determine round winner by best poker-dice hand among non-folded players
@@ -220,6 +224,7 @@ async function _finalizeGame(match) {
 
     match.outcome = winner.userId;
     match.status = 'completed';
+    match.roundPhase = 'gameEnd';
     await match.save();
 
     // If this match was part of a tournament, check whether the round is done

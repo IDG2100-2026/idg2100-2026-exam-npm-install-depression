@@ -74,6 +74,15 @@ export const getLeaderboard = async (req, res) => {
     }
 };
 
+export const listUsersPublic = async (req, res) => {
+    try {
+        const users = await userService.listUsersPublic();
+        res.status(200).json({ users });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message });
+    }
+};
+
 export const listUsers = async (req, res) => {
     try {
         const { page = 1, limit = 20, search = '' } = req.query;

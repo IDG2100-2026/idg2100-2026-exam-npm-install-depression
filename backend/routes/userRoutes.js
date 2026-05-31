@@ -3,7 +3,7 @@ import {
     register, login, refresh, logout,
     verifyEmail, resendVerification, forgotPassword, resetPassword,
     getUserProfile, updateUserProfile,
-    getLeaderboard, listUsers,
+    getLeaderboard, listUsersPublic, listUsers,
     banUser, unbanUser, makeAdmin
 } from "../controllers/userController.js";
 import { verifyToken, verifyTokenOptional, isAdmin } from "../middleware/authMiddleware.js";
@@ -29,6 +29,9 @@ router.post("/reset-password/:token", resetPasswordRules, validate, resetPasswor
 
 // Leaderboard — public
 router.get("/leaderboard", getLeaderboard);
+
+// Public user list (slim — _id, username, points only)
+router.get("/directory", listUsersPublic);
 
 // Profile — optional auth so email is hidden from strangers
 router.get("/:id", verifyTokenOptional, getUserProfile);
