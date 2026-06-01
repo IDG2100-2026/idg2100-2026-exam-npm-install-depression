@@ -24,12 +24,12 @@ export const getAllMatches = async (req, res) => {
             buyIn,
             straightsAllowed
         });
-        // Pagination metadata in headers; body is the plain array the frontend expects
-        res.set('X-Total-Count', result.total);
-        res.set('X-Page', result.page);
-        res.set('X-Limit', result.limit);
-        res.set('Access-Control-Expose-Headers', 'X-Total-Count, X-Page, X-Limit');
-        res.status(200).json(result.matches);
+        res.status(200).json({
+            matches: result.matches,
+            total: result.total,
+            page: result.page,
+            limit: result.limit
+        });
     } catch (err) {
         res.status(err.status || 500).json({ message: err.message });
     }
