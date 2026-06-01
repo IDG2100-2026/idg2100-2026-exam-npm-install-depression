@@ -36,8 +36,11 @@ const player3 = createdUsers.find(u => u.username === 'rollin_thor');
 // Insert matches and link to real user IDs
 const matchDocs = matchRawData.map((m, i) => new Match({
     ...m,
-    players: i === 2 ? [player1._id, player2._id, player3._id] : [player1._id, player2._id],
-    outcome: m.status === 'completed' ? player1._id : undefined
+    players:
+  i === 0 ? [] :
+  i === 1 ? [player1._id] :
+  i === 2 ? [player1._id, player2._id, player3._id] :
+  [player1._id, player2._id]
 }));
 const createdMatches = await Match.insertMany(matchDocs);
 console.log(`Inserted ${createdMatches.length} matches`);
