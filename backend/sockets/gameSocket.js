@@ -1,5 +1,5 @@
+import { Match } from "../models/Match.js";
 import * as gameService from "../services/gameService.js";
-import * as matchService from "../services/matchService.js";
 
 // Namespace: /game
 // Room naming: "match:<matchId>"
@@ -9,6 +9,7 @@ import * as matchService from "../services/matchService.js";
 //   hold_dice    { matchId, held }      — held = array of dice indices e.g. [0, 2, 4]
 //   place_bet    { matchId, amount }    — bet/match/raise
 //   fold         { matchId }            — fold this round
+//   reroll       { matchId }            — re-roll non-held dice
 //
 // Server → Client events:
 //   game_state       { state }          — broadcast to room (no dice inside)
@@ -146,8 +147,42 @@ async function _broadcastNextRound(ns, matchId) {
             const roll = match.roundRolls.find(r => r.userId.toString() === s.data.userId);
             if (roll) s.emit("your_dice", { dice: roll.dice });
         }
+
+        const timeControl = match.category.timeControl * 1000; // convert to ms
+        setTimeout(() => _enforceTimer(ns, matchId), timeControl);
     } catch (err) {
         ns.to(`match:${matchId}`).emit("error", { message: "Failed to start next round" });
+    }
+}
+
+async function _enforceTimer(ns, matchId) {
+    const match = await Match.findById(matchId);
+    // Only act if round is still active (player might have already bet)
+    if (!match || match.roundPhase !== 'rolling' && match.roundPhase !== 'betting') return;
+
+    // Auto-match the current bet for every player who hasn't acted
+    for (const ps of match.playerStates) {
+        if (!ps.hasFolded && ps.currentRoundBet < match.currentBet) {
+            const extra = Math.min(match.currentBet - ps.currentRoundBet, ps.stack);
+            ps.stack -= extra;
+            ps.currentRoundBet += extra;
+            match.pot += extra;
+        }
+    }
+    match.markModified('playerStates');
+    await match.save();
+
+    // Trigger reveal the same way a normal bet would
+    const result = await gameService.revealRound(matchId);
+    ns.to(`match:${matchId}`).emit("round_revealed", {
+        allRolls: result.allRolls,
+        roundWinnerId: result.roundWinnerId,
+        state: result.state
+    });
+    if (result.matchOver) {
+        ns.to(`match:${matchId}`).emit("game_over", { matchResult: result.matchResult, state: result.state });
+    } else {
+        setTimeout(() => _broadcastNextRound(ns, matchId), 3000);
     }
 }
 
@@ -181,6 +216,9 @@ export async function broadcastGameStart(io, matchId) {
             const roll = match.roundRolls.find(r => r.userId.toString() === s.data.userId);
             if (roll) s.emit("your_dice", { dice: roll.dice });
         }
+
+        const timeControl = match.category.timeControl * 1000;
+        setTimeout(() => _enforceTimer(ns, matchId), timeControl);
     } catch (err) {
         ns.to(`match:${matchId}`).emit("error", { message: "Failed to start game" });
     }
