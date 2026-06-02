@@ -19,17 +19,22 @@ function Header() {
       });
   }, []);
 
-  function handleUserChange(e) {
-    const userId = e.target.value;
-    
-    setSelectedUser(userId);
+function handleUserChange(e) {
+  const userId = e.target.value;
 
-    localStorage.setItem("userId", userId);
+  setSelectedUser(userId);
 
-    const user = users.find(user => user._id === userId);
-    localStorage.setItem("userPoints", user.points);
-
+  if (!userId) {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userPoints");
+    return;
   }
+
+  const user = users.find(user => user._id === userId);
+
+  localStorage.setItem("userId", userId);
+  localStorage.setItem("userPoints", user?.points || 0);
+}
 
   return (
     <header>

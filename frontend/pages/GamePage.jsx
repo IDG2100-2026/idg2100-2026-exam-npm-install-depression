@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getMatchById } from '../src/api/matchesApi';
+import  GameBoard  from '../src/components/game/GameBoard';
+import CommentSection from '../src/components/CommentSection';
 
 // const mockMatch = {
 //   _id: 'match123',
@@ -33,42 +35,62 @@ import { getMatchById } from '../src/api/matchesApi';
 // };
 
 export default function GamePage() {
-  // const [match] = useState(mockMatch);
-
   const { id } = useParams();
 
-const [match, setMatch] = useState(null);
-const [loading, setLoading] = useState(true);
+  const [match, setMatch] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  async function loadMatch() {
-    const data = await getMatchById(id);
+  const comments = match?.comments || [];
 
-    console.log(data);
+  useEffect(() => {
+    async function loadMatch() {
+      const data = await getMatchById(id);
 
-    setMatch(data.match || data);
-    setLoading(false);
+      console.log(data);
+
+      setMatch(data.match || data);
+      setLoading(false);
+    }
+
+    loadMatch();
+  }, [id]);
+
+  if (loading) {
+    return <p>Loading match...</p>;
   }
 
-  loadMatch();
-}, [id]);
+  if (!match) {
+    return <p>Match not found.</p>;
+  }
 
-if (loading) {
-  return <p>Loading match...</p>;
-}
+const currentUserId = localStorage.getItem("userId");
 
-if (!match) {
-  return <p>Match not found.</p>;
-}
+console.log("currentUserId", currentUserId);
+console.log("match.players", match.players);
+
+const isPlayer = match.players?.some((player) => {
+  const playerId = player.userId?._id || player.userId || player._id;
+  return String(playerId) === String(currentUserId);
+});
+
+
+
+console.log("FULL MATCH:", JSON.stringify(match, null, 2));
 
   return (
     <main>
       <h1>Game Page</h1>
+       <GameBoard match={match} isPlayer={isPlayer} currentUserId={currentUserId}/>
 
       <section>
+        <p>Mode: {isPlayer ? "Playing" : "Spectating"}</p>
         <h2>Match info</h2>
         <p>Status: {match.status}</p>
-        <p>Phase: {match.roundPhase || 'No phase yet'}</p>
+        <p>
+          Phase: {match.status === "completed"
+          ? "gameEnd"
+          : match.roundPhase || "No phase yet"}
+        </p>
         <p>Round: {match.currentRound}</p>
         <p>Pot: {match.pot}</p>
         <p>Current bet: {match.currentBet}</p>
@@ -81,6 +103,17 @@ if (!match) {
       )}
 
       {match.status === 'completed' && <FinishedRender match={match} />}
+        <CommentSection
+          matchId={match._id}
+          comments={comments}
+          onCommentAdded={(newComment) => {
+            setMatch(prev => ({
+              ...prev,
+              comments: [...(prev.comments || []), newComment]
+            }));
+          }}
+        />
+ 
     </main>
   );
 }
@@ -92,7 +125,7 @@ function WaitingRender({ match }) {
       <p>Players joined: {match.players.length}</p>
 
       {match.players.map((player) => (
-        <article key={player.userId}>
+        <article key={player._id || player.userId}>
           <h3>{player.username}</h3>
           <p>Stack: {player.stack}</p>
         </article>
@@ -121,12 +154,12 @@ function RollingRender({ match }) {
       <p>Current turn: {match.currentTurnPlayerId}</p>
 
       {match.players.map((player) => (
-        <article key={player.userId}>
+        <article key={player._id || player.userId}>
           <h4>{player.username}</h4>
-          <p>Stack: {player.stack}</p>
+          <p>Stack: {player.stack || 0}</p>
           <p>Current turn: {player.isCurrentTurn ? 'Yes' : 'No'}</p>
-          <p>Dice: {player.dice.join(' ')}</p>
-          <p>Held dice: {player.heldDice.join(', ')}</p>
+          <p>Dice: {player.dice?.join(' ') || 'No dice yet'}</p>
+          <p>Held dice: {player.heldDice?.join(', ') || 'No held dice yet'}</p>
         </article>
       ))}
     </section>
@@ -158,7 +191,7 @@ function RevealingRender({ match }) {
   );
 }
 
-function GameEndRender({ match }) {
+function GameEndRender() {
   return (
     <section>
       <h3>Game end</h3>

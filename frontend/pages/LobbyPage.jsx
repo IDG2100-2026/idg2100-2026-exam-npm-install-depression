@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import { getMatches } from '../src/api/matchesApi';
+import { useNavigate } from "react-router-dom";
+import { joinMatch } from "../src/api/matchesApi";
 
 export default function LobbyPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,13 +15,26 @@ export default function LobbyPage() {
   const [matches, setMatches] = useState([]);
 
   useEffect(() => {
-    async function loadMatches() {
-      const data = await getMatches();
-      setMatches(data);
-    }
-
-    loadMatches();
+        async function loadMatches() {
+          const data = await getMatches();
+          setMatches(data);
+        }
+      
+        loadMatches();
   }, []);
+    
+
+  // JOINING OR SPECTATING A GAME
+
+  const navigate = useNavigate();
+    
+  async function handleJoin(matchId) {
+      const userId = localStorage.getItem("userId");
+    
+      await joinMatch(matchId, userId);
+    
+      navigate(`/games/${matchId}`);
+  }
 
   //Filters
 
@@ -119,9 +134,14 @@ const paginatedMatches = filteredMatches.slice(
         const userId = localStorage.getItem("userId");
         const userPoints = Number(localStorage.getItem("userPoints"));
 
+        const matchIsFull =
+        (match.players?.length || 0) >= match.category?.playerCount;
+
         const canJoin = userId 
         && match.status === "waiting"
-        && userPoints >= match.category?.buyIn;
+        && userPoints >= match.category?.buyIn
+        && !matchIsFull;
+        
         return (
         <article key={match._id}>
           <h2>Match {match._id}</h2>
@@ -132,16 +152,16 @@ const paginatedMatches = filteredMatches.slice(
           <p>Straights allowed: {match.category?.straightsAllowed ? " Yes" : " No"}</p>
           <p>Buy-in: {match.category?.buyIn}</p>
 
-          {canJoin ? (
-            <Link to={`/games/${match._id}`}>
-              Join game
-            </Link>
-            ) : (
-            <Link to={`/games/${match._id}`}>
-              Spectate
-              {userPoints < match.category?.buyIn && " (not enough points)"}
-            </Link>
-            )}
+      {canJoin ? (
+        <button onClick={() => handleJoin(match._id)}>
+          Join game
+        </button>
+      ) : (
+        <Link to={`/games/${match._id}`}>
+          Spectate
+          {userPoints < match.category?.buyIn && " (not enough points)"}
+        </Link>
+      )}
         </article>
       );
     })}
