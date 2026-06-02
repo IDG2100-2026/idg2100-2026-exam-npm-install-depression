@@ -49,6 +49,19 @@ export function registerGameSocket(io) {
             }
         });
 
+        socket.on("reroll", async ({ matchId }) => {
+            try {
+                const userId = socket.data.userId;
+                const result = await gameService.rerollDice(matchId, userId);
+                // Send new dice to this player only
+                socket.emit("your_dice", { dice: result.dice });
+                // Broadcast updated public state to room (no dice values)
+                ns.to(`match:${matchId}`).emit("game_state", { state: result.state });
+            } catch (err) {
+                socket.emit("error", { message: err.message });
+            }
+        });
+
         socket.on("place_bet", async ({ matchId, amount }) => {
             try {
                 const userId = socket.data.userId;
