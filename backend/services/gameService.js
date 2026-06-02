@@ -5,11 +5,12 @@ import { advanceTournamentRound } from "./tournamentService.js";
 import { getIO } from "../sockets/index.js";
 
 const DICE_COUNT = 5;
-const DICE_FACES = 6;
+const DICE_FACES = ['A', 'K', 'Q', 'J', '9', '8'];
+const FACE_RANK = { '8': 1, '9': 2, 'J': 3, 'Q': 4, 'K': 5, 'A': 6 };
 
 function rollDice() {
     return Array.from({ length: DICE_COUNT }, () =>
-        Math.floor(Math.random() * DICE_FACES) + 1
+        DICE_FACES[Math.floor(Math.random() * DICE_FACES.length)]
     );
 }
 
@@ -270,13 +271,13 @@ function _scoreHand(dice) {
 }
 
 function _highCard(dice) {
-    return Math.max(...dice);
+    return Math.max(...dice.map(d => FACE_RANK[d]));
 }
 
 function _isStraight(dice) {
-    const sorted = [...new Set(dice)].sort((a, b) => a - b);
-    if (sorted.length !== 5) return false;
-    return sorted[4] - sorted[0] === 4;
+    const ranks = [...new Set(dice.map(d => FACE_RANK[d]))].sort((a, b) => a - b);
+    if (ranks.length !== 5) return false;
+    return ranks[4] - ranks[0] === 4;
 }
 
 function _compareHands(diceA, diceB) {
