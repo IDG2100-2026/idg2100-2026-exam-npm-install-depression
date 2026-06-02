@@ -135,14 +135,27 @@ export async function joinTournament(tournamentId, userId) {
         throw err;
     }
 
-    // Check buy-in
-    if (tournament.rules.buyIn > 0) {
-        const user = await User.findById(userId);
-        if (!user || user.points < tournament.rules.buyIn) {
-            const err = new Error("Insufficient points for buy-in");
-            err.status = 400;
-            throw err;
-        }
+    // Check buy-in and ELO eligibility
+    const user = await User.findById(userId).select('points eloRatings');
+    if (!user) {
+        const err = new Error("User not found");
+        err.status = 404;
+        throw err;
+    }
+
+    const userElo = user.eloRatings?.standard ?? 1000;
+    const { eloMin = 0, eloMax = 9999, buyIn = 0 } = tournament.rules;
+
+    if (userElo < eloMin || userElo > eloMax) {
+        const err = new Error(`Your ELO (${userElo}) is outside the allowed range (${eloMin}-${eloMax})`);
+        err.status = 403;
+        throw err;
+    }
+
+    if (buyIn > 0 && user.points < buyIn) {
+        const err = new Error("Insufficient points for buy-in");
+        err.status = 400;
+        throw err;
     }
 
     tournament.participants.push(userId);

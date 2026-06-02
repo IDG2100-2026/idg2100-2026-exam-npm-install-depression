@@ -1,12 +1,51 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { login } from '../src/api/authApi.js';
+
 
 export default function LoginPage() {
-  return (
-  <div>
-  <h1>Login Page</h1>
+    const navigate = useNavigate();
+    const [form, setForm] = useState({ username: '', password: '' });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+  
+    function handleChange(e) {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
+  
+    async function handleSubmit(e) {
+      e.preventDefault();
+      setError('');
+      setLoading(true);
+      try {
+        await login(form.username, form.password);
+        navigate('/lobby');
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  <Link to="/forgot-password">Forgot password?</Link>
-  <Link to="/register">Register</Link>
-  </div>
-)
+  return (
+    <div>
+      <h1>Login</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Username</label>
+          <input name="username" value={form.username} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Password</label>
+          <input name="password" type="password" value={form.password} onChange={handleChange} required />
+        </div>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <button type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Log in'}
+        </button>
+      </form>
+      <Link to="/forgot-password">Forgot password?</Link>
+      <Link to="/register">Register</Link>
+    </div>
+  );
 }
