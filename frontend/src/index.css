@@ -163,7 +163,11 @@ h3 {
 }
 
 p {
-  margin: 0;
+  margin: 0 0 12px;
+}
+
+p:last-child {
+  margin-bottom: 0;
 }
 
 a {
@@ -410,6 +414,16 @@ textarea:focus {
   color: #16a34a;
   font-size: 14px;
   margin-top: 4px;
+}
+
+/*  SECTIONS  */
+
+section {
+  margin-bottom: 40px;
+}
+
+section:last-child {
+  margin-bottom: 0;
 }
 
 /*  CARDS  */
