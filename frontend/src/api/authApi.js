@@ -17,6 +17,7 @@ export async function login(username, password) {
     localStorage.setItem('username', data.user.username);
     localStorage.setItem('role', data.user.role);
 
+    window.dispatchEvent(new Event('authChanged'));
     return data.user;
 }
 
@@ -34,6 +35,7 @@ export async function register(username, email, password, age) {
 export async function logout() {
     await apiFetch('/users/logout', { method: 'POST' }).catch(() => {});
     localStorage.clear();
+    window.dispatchEvent(new Event('authChanged'));
 }
 
 export async function getUserProfile(userId) {

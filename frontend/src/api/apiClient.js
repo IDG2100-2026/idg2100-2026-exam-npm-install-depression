@@ -3,10 +3,13 @@ const BASE = 'http://localhost:4567/api';
 export async function apiFetch(path, options = {}) {
     const token = localStorage.getItem('accessToken');
 
+    const isFormData = options.body instanceof FormData;
+
     const res = await fetch(`${BASE}${path}`, {
         ...options,
         headers: {
-            'Content-Type': 'application/json',
+            // Don't set Content-Type for FormData — browser sets it with the boundary automatically
+            ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...options.headers
         }

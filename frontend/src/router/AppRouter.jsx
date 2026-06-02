@@ -17,6 +17,7 @@ import TermsPage from '../../pages/TermsPage.jsx';
 import PrivacyPage from '../../pages/PrivacyPage.jsx';
 import ForgotPasswordPage from '../../pages/ForgotPasswordPage.jsx';
 import VerifyEmailPage from '../../pages/VerifyEmailPage.jsx';
+import ResetPasswordPage from '../../pages/ResetPasswordPage.jsx';
 import SettingsPage from '../../pages/SettingsPage.jsx';
 import AdminDashPage from '../../pages/AdminDashPage.jsx';
 import AdminUserPage from '../../pages/AdminUserPage.jsx';
@@ -51,6 +52,7 @@ function AppRouter() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

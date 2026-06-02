@@ -39,26 +39,14 @@ export default function Header() {
   useEffect(() => {
     setUser(getCurrentUser());
     function syncUser() { setUser(getCurrentUser()); }
-    window.addEventListener('storage', syncUser);
-    return () => window.removeEventListener('storage', syncUser);
+    window.addEventListener('storage', syncUser);     // other tabs
+    window.addEventListener('authChanged', syncUser); // same tab (login/logout)
+    return () => {
+      window.removeEventListener('storage', syncUser);
+      window.removeEventListener('authChanged', syncUser);
+    };
   }, []);
 
-function handleUserChange(e) {
-  const userId = e.target.value;
-
-  setSelectedUser(userId);
-
-  if (!userId) {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userPoints");
-    return;
-  }
-
-  const user = users.find(user => user._id === userId);
-
-  localStorage.setItem("userId", userId);
-  localStorage.setItem("userPoints", user?.points || 0);
-}
   async function handleLogout() {
     await logout();
     setUser(null);
