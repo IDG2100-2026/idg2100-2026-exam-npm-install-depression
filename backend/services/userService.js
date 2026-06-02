@@ -108,7 +108,7 @@ export async function getUserById(id) {
     return user;
 }
 
-export async function getUserProfile(id, requesterId, requesterRole) {
+export async function getUserProfile(id, requesterId, requesterRole, page = 1) {
     const user = await User.findById(id)
         .select('-password -refreshToken -verificationToken')
         .lean();
@@ -125,7 +125,6 @@ export async function getUserProfile(id, requesterId, requesterRole) {
         delete user.email;
     }
 
-    const page = 1;
     const limit = 10;
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 

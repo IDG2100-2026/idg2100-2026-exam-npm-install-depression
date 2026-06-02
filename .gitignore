@@ -2,5 +2,6 @@ extra.md
 TODO.txt
 .DS_Store
 node_modules/
+.env
 .env.dev
 .env.prod
