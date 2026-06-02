@@ -47,11 +47,11 @@ export default function RegisterPage() {
           <input name="age" type="number" value={form.age} onChange={handleChange} required />
         </div>
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} style={{ marginTop: 12 }}>
           {loading ? 'Registering...' : 'Register'}
         </button>
       </form>
-      <p>Already have an account? <Link to="/login">Log in</Link></p>
+      <p style={{ marginTop: 12 }}>Already have an account? <Link to="/login">Log in</Link></p>
     </div>
   );
 }

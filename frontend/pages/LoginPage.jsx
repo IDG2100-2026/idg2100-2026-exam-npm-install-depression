@@ -40,12 +40,14 @@ export default function LoginPage() {
           <input name="password" type="password" value={form.password} onChange={handleChange} required />
         </div>
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} style={{ marginTop: 12 }}>
           {loading ? 'Logging in...' : 'Log in'}
         </button>
       </form>
-      <Link to="/forgot-password">Forgot password?</Link>
-      <Link to="/register">Register</Link>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+        <Link to="/forgot-password">Forgot password?</Link>
+        <Link to="/register">Register</Link>
+      </div>
     </div>
   );
 }

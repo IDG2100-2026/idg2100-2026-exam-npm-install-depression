@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from '../components/MainLayout';
+import NotFoundPage from '../../pages/NotFoundPage.jsx';
 
 import HomePage from '../../pages/HomePage.jsx';
 import LobbyPage from '../../pages/LobbyPage.jsx';
@@ -45,14 +46,13 @@ function AppRouter() {
           <Route path="/admin/users" element={<AdminUserPage />} />
           <Route path="/admin/comments" element={<AdminCommentPage />} />
           <Route path="/admin/tournaments" element={<AdminTournamentsPage />} />
+
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
-
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
-
       </Routes>
     </BrowserRouter>
   );
