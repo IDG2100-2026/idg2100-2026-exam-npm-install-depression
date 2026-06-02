@@ -39,7 +39,11 @@ export async function registerUser({ username, email, password, age }) {
     });
     await user.save();
 
-    await sendVerificationEmail(email, verificationToken);
+    try {
+        await sendVerificationEmail(email, verificationToken);
+    } catch (mailErr) {
+        console.warn('Verification email failed to send:', mailErr.message);
+    }
 
     return { username: user.username, email: user.email };
 }
