@@ -1,0 +1,54 @@
+.createGame-wrapper {
+  text-align: var(--start-text-align, center);
+  justify-content: var(--start-jc, center);
+  align-items: var(--start-ai, center);
+  padding: var(--start-padding, 5px);
+  margin: var(--start-margin, 0);
+  display: var(--start-display, flex);
+  flex-direction: var(--start-flexd, column);
+  color: var(--start-color, #fff1ce);
+  background-color: var(--start-bg, #123F31);
+  border-radius: var(--start-radius, 10px);
+  text-shadow: var(--start-shadow, 1px 1px 3px rgba(0, 0, 0, 0.5));
+  height: var(--start-height, 100%);
+}
+
+.createGame-wrapper button {
+  background-color: var(--start-btn-bg, #BC2C1A);
+  color: var(--start-btn-color, white);
+  font-family: var(--start-btn-font, "Jost");
+  font-weight: var(--start-btn-weight, 200);
+  font-size: var(--start-btn-size, 20px);
+  border-radius: var(--start-btn-radius, 50px);
+  padding: var(--start-btn-padding, 5px);
+  min-width: var(--start-btn-minw, 150px);
+  max-width: var(--start-btn-maxw, 200px);
+  margin: var(--start-btn-margin, 10px 0 35px 0);
+  cursor: var(--start-btn-cursor, pointer);
+}
+
+.createGame-wrapper h2 {
+  margin-top: var(--start-title-mt, 30px);
+}
+
+.createGame-wrapper input {
+  font-family: var(--start-input-font, "Jost");
+  background-color: var(--start-input-bg, #0C3123);
+  color: var(--start-input-color, #fff1ce);
+  border-radius: var(--start-input-radius, 8px);
+  padding: var(--start-input-padding, 5px 10px);
+}
+
+.createGame-wrapper select {
+  font-family: var(--start-select-font, "Jost");
+  background-color: var(--start-select-bg, #0C3123);
+  color: var(--start-select-color, #fff1ce);
+  border-radius: var(--start-select-radius, 8px);
+  padding: var(--start-select-padding, 5px 10px);
+  cursor: var(--start-select-cursor, pointer);
+}
+
+.createGame-wrapper input[type="checkbox"] {
+  accent-color: var(--start-checkbox-accent, #BC2C1A);
+  cursor: var(--start-checkbox-cursor, pointer);
+}
