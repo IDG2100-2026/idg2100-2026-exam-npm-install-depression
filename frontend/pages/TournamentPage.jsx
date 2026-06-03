@@ -22,7 +22,7 @@ function TournamentPage() {
   const { id } = useParams();
 
   const [tournament, setTournament] = useState(null);
-  const [currentUser, setCurrentUser] = useState(getCurrentUser());
+  const [currentUser] = useState(getCurrentUser());
   const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {
