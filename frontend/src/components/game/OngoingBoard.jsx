@@ -15,21 +15,28 @@ function getDiceFace(die) {
   return diceFaces[die] ?? "?";
 }
 
-function OngoingBoard({ match, currentUserId }){
+function OngoingBoard({ match, currentUserId, isPlayer }){
+const getId = (value) => value?._id || value;
+const spectatorPlayer = match.playerStates?.[0];
+
+const viewUserId = isPlayer
+  ? currentUserId
+  : getId(spectatorPlayer?.userId);
 
 const currentPlayerState = match.playerStates?.find((player) => {
-  const playerId = player.userId?._id || player.userId;
-  return String(playerId) === String(currentUserId);
+//   const playerId = player.userId?._id || player.userId;
+//   return String(playerId) === String(viewUserId);
+  return String(getId(player.userId)) === String(viewUserId);
 });
 
 const otherPlayerStates = match.playerStates?.filter((player) => {
   const playerId = player.userId?._id || player.userId;
-  return String(playerId) !== String(currentUserId);
+  return String(playerId) !== String(viewUserId);
 }) ?? [];
 
 const currentPlayerDice =
-  match.roundRolls.find(
-    roll => String(roll.userId) === String(currentUserId)
+  match.roundRolls?.find(
+    roll => String(roll.userId) === String(viewUserId)
   )?.dice ?? [];
 // console.log("currentUserId:", currentUserId);
 // console.log("playerStates:", match.playerStates);
@@ -38,26 +45,29 @@ const currentPlayerDice =
 //   match.playerStates?.map((player) => player.userId?._id || player.userId)
 // );
 if (match.roundPhase === "rolling") {
-    return(    <RollingPhase
-      match={match}
-      currentPlayerState={currentPlayerState}
-      otherPlayerStates={otherPlayerStates}
-      currentPlayerDice={currentPlayerDice}
-    />)
+    return(    
+        <RollingPhase
+          match={match}
+          isPlayer={isPlayer}
+          currentPlayerState={currentPlayerState}
+          otherPlayerStates={otherPlayerStates}
+          currentPlayerDice={currentPlayerDice}
+        />
+    )
 
   }
 
   if (match.roundPhase === "revealing") {
-    return RevealPhase();
+    return <RevealPhase />;
   }
 
   if (match.roundPhase === "betting") {
-    return BettingPhase;
+    return <BettingPhase isPlayer={isPlayer} />;
   }
     
 }
 
-function RollingPhase({ match, currentPlayerState, otherPlayerStates, currentPlayerDice }){
+function RollingPhase({ match, isPlayer, currentPlayerState, otherPlayerStates, currentPlayerDice }){
     return(
     <div className="ongoing-board">
       <header className="ongoing-board__header">
@@ -96,9 +106,14 @@ function RollingPhase({ match, currentPlayerState, otherPlayerStates, currentPla
           </div>
 
           <div className="ongoing-board__commands">
-            <button id="stand-btn1">STAND</button>
-            <button id="roll-btn1">ROLL</button>
-            <p id="rem-rolls1">3 remaining rolls</p>
+            {isPlayer && (
+              <>
+                <button id="stand-btn1">STAND</button>
+                <button id="roll-btn1">ROLL</button>
+                <p id="rem-rolls1">3 remaining rolls</p>
+              </>
+            )}
+
             <h4 className="timer">{match.category.timeControl}s</h4>
           </div>
         </div>
@@ -108,7 +123,7 @@ function RollingPhase({ match, currentPlayerState, otherPlayerStates, currentPla
     )
 }
 
-function BettingPhase(){
+function BettingPhase({ isPlayer }){
   return(
     <div className="ongoing-board">
       <header className="ongoing-board__header">
@@ -132,11 +147,13 @@ function BettingPhase(){
         <div className="ongoing-board__side ongoing-board__side--p1">
 
           <div className="ongoing-board__commands">
-            <div className="ongoing-board__betting">
-            <button id="betting-plus">+</button>
-            <p>500</p>
-            <button id="betting-minus">-</button>
-            </div>
+            {isPlayer && (
+              <div className="ongoing-board__betting">
+                <button id="betting-plus">+</button>
+                <p>500</p>
+                <button id="betting-minus">-</button>
+              </div>
+            )}
             <p>Stack: ...</p>
             <p>Your dice: ...</p>
             <h4 id="timer">TIMER</h4>
