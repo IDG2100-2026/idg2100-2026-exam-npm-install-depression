@@ -16,17 +16,29 @@ export async function apiFetch(path, options = {}) {
     });
 
     if (res.status === 401) {
+      const hadToken = !!localStorage.getItem('accessToken');
+    
+      if (hadToken) {
         const refreshed = await tryRefresh();
+    
         if (refreshed) {
-            return apiFetch(path, options);
-        } else {
-            localStorage.clear();
-            window.location.href = '/login';
+          return apiFetch(path, options);
         }
+      }
+    
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('username');
+      localStorage.removeItem('role');
+    
+      window.dispatchEvent(new Event('authChanged'));
+    
+      throw new Error('Unauthorized');
     }
-
-    return res;
-}
+    
+        return res;
+    }
 
 async function tryRefresh() {
     const refreshToken = localStorage.getItem('refreshToken');
