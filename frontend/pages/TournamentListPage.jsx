@@ -95,7 +95,7 @@ export default function TournamentListPage() {
           {upcomingTournaments.map((tournament) => (
           <article key={tournament.id}>
             <h3>{tournament.title}</h3>
-            <p>Date: {tournament.startDate}</p>
+            <p>Date: {new Date(tournament.startDate).toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             <p>
               Players: {tournament.participants.length}/{tournament.rules.maxParticipants}
             </p>
@@ -110,7 +110,7 @@ export default function TournamentListPage() {
       {ongoingTournaments.map((tournament) => (
         <article key={tournament.id}>
           <h3>{tournament.title}</h3>
-            <p>Date: {tournament.date}</p>
+            <p>Date: {new Date(tournament.startDate).toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             <p>
               Players: {tournament.participants.length}/{tournament.rules.maxParticipants}
             </p>
@@ -123,7 +123,7 @@ export default function TournamentListPage() {
       {finishedTournaments.map((tournament) => (
         <article key={tournament.id}>
           <h3>{tournament.title}</h3>
-            <p>Date: {tournament.startDate}</p>
+            <p>Date: {new Date(tournament.startDate).toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             <p>
               Players: {tournament.participants.length}/{tournament.rules.maxParticipants}
             </p>

@@ -1,32 +1,66 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getTournamentById, joinTournament, leaveTournament } from "../src/api/tournamentsApi";
-import { getCurrentUser } from "../src/api/matchesApi";
+import { getCurrentUser, isAdmin as checkIsAdmin } from "../src/api/authApi";
+import { apiFetch } from "../src/api/apiClient";
 import CommentSection from "../src/components/CommentSection";
 import { addTournamentComment } from "../src/api/tournamentsApi";
+
+function formatCountdown(ms) {
+  if (ms <= 0) return 'Starting...';
+  const s = Math.floor(ms / 1000) % 60;
+  const m = Math.floor(ms / 60000) % 60;
+  const h = Math.floor(ms / 3600000) % 24;
+  const d = Math.floor(ms / 86400000);
+  if (d > 0) return `${d}d ${h}h ${m}m`;
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  return `${m}m ${s}s`;
+}
 
 
 function TournamentPage() {
   const { id } = useParams();
 
   const [tournament, setTournament] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(getCurrentUser());
+  const [timeLeft, setTimeLeft] = useState(null);
 
-useEffect(() => {
-  async function loadData() {
-    const tournamentData = await getTournamentById(id);
-    setTournament(tournamentData);
-
-    try {
-      const userData = await getCurrentUser();
-      setCurrentUser(userData);
-    } catch {
-      setCurrentUser(null);
+  useEffect(() => {
+    async function loadData() {
+      const tournamentData = await getTournamentById(id);
+      setTournament(tournamentData);
     }
-  }
+    loadData();
+  }, [id]);
 
-  loadData();
-}, [id]);
+  // Countdown + auto-start when startDate is reached
+  useEffect(() => {
+    if (!tournament || tournament.status !== 'upcoming') return;
+
+    const startTime = new Date(tournament.startDate).getTime();
+
+    async function autoStart() {
+      try {
+        await apiFetch(`/tournaments/${id}/status`, { method: 'PATCH' });
+        const updated = await getTournamentById(id);
+        setTournament(updated);
+      } catch {
+        // Another client may have already started it, just refresh
+        const updated = await getTournamentById(id);
+        setTournament(updated);
+      }
+    }
+
+    function tick() {
+      const diff = startTime - Date.now();
+      setTimeLeft(diff);
+      if (diff <= 0) autoStart();
+    }
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [tournament?.startDate, tournament?.status]);
 
   if (!tournament) {
     return <p>Loading tournament...</p>;
@@ -39,7 +73,7 @@ useEffect(() => {
   //   isLoggedIn: true,
   // };
 
-  const isAdmin = currentUser?.role === "admin";
+  const isAdmin = checkIsAdmin();
 
   const isJoined = currentUser
   ? tournament.participants?.some((player) => {
@@ -88,7 +122,10 @@ async function handleLeave() {
 
       <p>Status: {tournament.status}</p>
       <p>Created by {tournament.author?.username}</p>
-      <p>Starts: {new Date(tournament.startDate).toLocaleString()}</p>
+      <p>Starts: {new Date(tournament.startDate).toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+      {tournament.status === 'upcoming' && timeLeft !== null && (
+        <p><strong>Starts in: {formatCountdown(timeLeft)}</strong></p>
+      )}
 
       <h2>Description</h2>
       <p>{tournament.description}</p>
@@ -123,13 +160,26 @@ async function handleLeave() {
       {!currentUser && <Link to="/login">Log in to join</Link>}
 
       {isAdmin && (
-        <>
-          <button>Delete tournament</button>
-          <button>Cancel tournament</button>
-          <Link to={`/admin/tournaments/edit/${tournament._id}`}>
-            Edit tournament
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+          <Link to={`/admin/tournaments?id=${tournament._id}`}>
+            <button>Edit tournament</button>
           </Link>
-        </>
+          {tournament.status === 'upcoming' && (
+            <button onClick={async () => {
+              if (!confirm('Cancel this tournament? Players will no longer be able to join.')) return;
+              await apiFetch(`/tournaments/${tournament._id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status: 'cancelled' })
+              });
+              setTournament(await getTournamentById(tournament._id));
+            }}>Cancel tournament</button>
+          )}
+          <button className="btn-danger" onClick={async () => {
+            if (!confirm(`Delete "${tournament.title}"? This cannot be undone.`)) return;
+            await apiFetch(`/tournaments/${tournament._id}`, { method: 'DELETE' });
+            window.location.href = '/tournaments';
+          }}>Delete tournament</button>
+        </div>
       )}
 
     <h2>Joined players</h2>
