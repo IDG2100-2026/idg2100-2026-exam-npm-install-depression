@@ -2,8 +2,8 @@
 
 .ongoing-board {
   text-align: center;
-  width: 100%;
-  min-height: 520px;
+  height: 100%;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
   color: #fff1ce;
@@ -11,189 +11,148 @@
   border-radius: 10px;
   overflow: hidden;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-  box-sizing: border-box;
-  margin-bottom: 24px;
-}
-
-.ongoing-board__header {
-  flex-shrink: 0;
-  background-color: var(--board-bg);
-  filter: brightness(1.3);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 16px 24px;
-  gap: 16px;
 }
 
 .ongoing-board__content {
   flex: 1;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 24px;
-  gap: 20px;
+  /* border: solid red 1px; */
+  flex-direction: column;
+}
+
+.ongoing-board__header {
+  flex-shrink: 0;
+  border: none;
+  background-color: var(--board-bg);
+  filter: brightness(1.3);
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
 .ongoing-board__players {
+  flex-shrink: 0;
+  border: none;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 32px;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-.ongoing-board__players-container {
-  display: flex;
-  flex-direction: column;
+  justify-content: space-evenly;
   align-items: center;
-  gap: 4px;
-  padding: 12px 20px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 8px;
-  min-width: 120px;
 }
 
-.ongoing-board__player {
-  padding: 0 16px;
-  align-self: flex-start;
-}
-
+.ongoing-board__player,
 .ongoing-board__instructions {
-  padding: 8px 16px;
-}
-
-.ongoing-board__instructions {
-  flex: 1;
-  max-width: 460px;
-}
-
-.ongoing-board__instructions p {
-  font-size: 14px;
-  opacity: 0.85;
-  margin-top: 6px;
+  padding: 10px;
+  max-width: 400px;
+  min-width: 150px;
 }
 
 .ongoing-board__game {
+  flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  /* border: solid red 1px; */
   align-items: center;
-  gap: 20px;
-  width: 100%;
+  justify-content: center;
+  background-color: var(--board-bg);
+  padding: 20px;
 }
 
 .ongoing-board__side {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  flex-direction: column;
 }
 
 .ongoing-board__dice-row {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
 }
 
-.ongoing-board__commands {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-/* Inherit board text color so global h2/h3/p don't override it */
 .ongoing-board h2,
 .ongoing-board h3,
 .ongoing-board h4,
 .ongoing-board p {
   color: inherit;
-  margin: 0;
-}
-
-.ongoing-board h2 {
-  font-size: 20px;
-}
-
-.ongoing-board h3 {
-  font-size: 16px;
 }
 
 .ongoing-board button {
   background-color: #BC2C1A;
   color: white;
-  border: none;
+  font-family: "Jost";
+  font-weight: 200;
   border-radius: 50px;
-  padding: 8px 20px;
+  padding: 5px;
   min-width: 100px;
   font-size: 15px;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-
-.ongoing-board button:hover {
-  opacity: 0.85;
-  background-color: #BC2C1A;
-  color: white;
-  border-color: transparent;
-}
-
-.ongoing-board input[type="number"] {
-  width: 70px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  text-align: center;
-  font-size: 15px;
-  background: rgba(255,255,255,0.15);
-  color: #fff1ce;
 }
 
 .ongoing-board__betting {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 16px;
-  font-size: 28px;
+    /* border: solid red 1px; */
+  gap: 20px;
+  font-size: 80px;
+  min-height: 60px;
 }
 
-.timer {
-  font-size: 18px;
-  opacity: 0.85;
+#betting-plus {
+    font-size: 30px;
+}
+
+#betting-minus {
+    font-size: 30px;
 }
 
 /* -------- MEDIA QUERIES -------- */
 
-@media (max-width: 768px) {
+@media (max-width: 931px) {
+  .ongoing-board__player,
+  .ongoing-board__instructions {
+    padding: 0;
+    font-size: 13px;
+  }
+
+  .ongoing-board__game {
+    min-height: 90%;
+  }
+}
+
+@media (max-width: 500px) {
   .ongoing-board__header {
-    flex-direction: column;
-    padding: 12px 16px;
-    gap: 8px;
-    text-align: center;
+    flex-wrap: wrap;
   }
 
-  .ongoing-board__content {
-    padding: 16px;
-    gap: 16px;
+  .ongoing-board__player--one {
+    order: 2;
+    margin: 0;
   }
 
-  .ongoing-board__players {
-    gap: 12px;
+  .ongoing-board p {
+    margin: 0;
   }
 
-  .ongoing-board__dice-row {
-    gap: 8px;
+  .ongoing-board h3,
+  .ongoing-board h2 {
+    margin: 0;
   }
 
-  .ongoing-board button {
-    min-width: 80px;
-    padding: 6px 14px;
-    font-size: 14px;
+  .ongoing-board__player,
+  .ongoing-board__instructions {
+    padding: 5px;
+  }
+
+  .ongoing-board__instructions {
+    order: 1;
+    flex-basis: 100%;
+    margin-top: 5px;
+  }
+
+  .ongoing-board__player--two {
+    order: 3;
+    margin: 5px;
   }
 }
