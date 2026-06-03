@@ -244,7 +244,11 @@ export async function resendVerification(email) {
     user.verificationToken = token;
     user.verificationTokenExpiry = new Date(Date.now() + TOKEN_EXPIRY_MS);
     await user.save();
-    await sendVerificationEmail(email, token);
+    try {
+        await sendVerificationEmail(email, token);
+    } catch (mailErr) {
+        console.warn('Resend verification email failed to send:', mailErr.message);
+    }
 }
 
 export async function forgotPassword(email) {
@@ -256,7 +260,11 @@ export async function forgotPassword(email) {
     user.passwordResetToken = token;
     user.passwordResetTokenExpiry = new Date(Date.now() + TOKEN_EXPIRY_MS);
     await user.save();
-    await sendPasswordResetEmail(email, token);
+    try {
+        await sendPasswordResetEmail(email, token);
+    } catch (mailErr) {
+        console.warn('Password reset email failed to send:', mailErr.message);
+    }
 }
 
 export async function resetPassword(token, newPassword) {
