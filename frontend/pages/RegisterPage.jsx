@@ -31,20 +31,23 @@ export default function RegisterPage() {
       <h1>Register</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Username</label>
-          <input name="username" value={form.username} onChange={handleChange} required />
+          <label>Username <span className="text-muted">(3–30 characters, letters/numbers/_)</span></label>
+          <input name="username" value={form.username} onChange={handleChange}
+            required minLength={3} maxLength={30} pattern="[a-zA-Z0-9_]+" />
         </div>
         <div>
           <label>Email</label>
           <input name="email" type="email" value={form.email} onChange={handleChange} required />
         </div>
         <div>
-          <label>Password</label>
-          <input name="password" type="password" value={form.password} onChange={handleChange} required />
+          <label>Password <span className="text-muted">(min. 8 chars, one uppercase, one digit)</span></label>
+          <input name="password" type="password" value={form.password} onChange={handleChange}
+            required minLength={8} />
         </div>
         <div>
-          <label>Age</label>
-          <input name="age" type="number" value={form.age} onChange={handleChange} required />
+          <label>Age <span className="text-muted">(must be 18 or older)</span></label>
+          <input name="age" type="number" value={form.age} onChange={handleChange}
+            required min={18} />
         </div>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <button type="submit" disabled={loading} style={{ marginTop: 12 }}>

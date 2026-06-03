@@ -1,0 +1,40 @@
+services:
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    ports:
+      - "4567:4567"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      BACKEND_APP_PORT: 4567
+      DB_HOSTNAME: mongo
+      DB_PORT: 27017
+      DB_NAME: spanish-poker
+      CLIENT_ORIGIN: http://localhost:5173
+    depends_on:
+      - mongo
+    volumes:
+      - uploads:/app/uploads
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+  uploads:

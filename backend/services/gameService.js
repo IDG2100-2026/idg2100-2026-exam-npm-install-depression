@@ -104,6 +104,26 @@ export async function holdDice(matchId, userId, heldIndices) {
     return publicState(match);
 }
 
+export async function rerollDice(matchId, userId) {
+    const match = await Match.findById(matchId);
+    if (!match) throw Object.assign(new Error("Match not found"), { status: 404 });
+    if (match.roundPhase !== 'rolling') throw Object.assign(new Error("Can only reroll during rolling phase"), { status: 400 });
+
+    const ps = match.playerStates.find(p => p.userId.toString() === userId);
+    if (!ps) throw Object.assign(new Error("Player not in match"), { status: 403 });
+    if (ps.hasFolded) throw Object.assign(new Error("You have folded"), { status: 400 });
+
+    const roll = match.roundRolls.find(r => r.userId.toString() === userId);
+    roll.dice = roll.dice.map((face, i) =>
+        ps.heldDice.includes(i) ? face: DICE_FACES[Math.floor(Math.random() * DICE_FACES.length)]
+    );
+
+    match.markModified('roundRolls');
+    await match.save();
+
+    return { dice: roll.dice, state: publicState(match) };
+}
+
 export async function placeBet(matchId, userId, amount) {
     const match = await Match.findById(matchId);
     if (!match) throw Object.assign(new Error("Match not found"), { status: 404 });

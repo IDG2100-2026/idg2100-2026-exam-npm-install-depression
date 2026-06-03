@@ -108,7 +108,7 @@ export async function getUserById(id) {
     return user;
 }
 
-export async function getUserProfile(id, requesterId, requesterRole) {
+export async function getUserProfile(id, requesterId, requesterRole, page = 1) {
     const user = await User.findById(id)
         .select('-password -refreshToken -verificationToken')
         .lean();
@@ -125,7 +125,6 @@ export async function getUserProfile(id, requesterId, requesterRole) {
         delete user.email;
     }
 
-    const page = 1;
     const limit = 10;
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
@@ -245,7 +244,11 @@ export async function resendVerification(email) {
     user.verificationToken = token;
     user.verificationTokenExpiry = new Date(Date.now() + TOKEN_EXPIRY_MS);
     await user.save();
-    await sendVerificationEmail(email, token);
+    try {
+        await sendVerificationEmail(email, token);
+    } catch (mailErr) {
+        console.warn('Resend verification email failed to send:', mailErr.message);
+    }
 }
 
 export async function forgotPassword(email) {
@@ -257,7 +260,11 @@ export async function forgotPassword(email) {
     user.passwordResetToken = token;
     user.passwordResetTokenExpiry = new Date(Date.now() + TOKEN_EXPIRY_MS);
     await user.save();
-    await sendPasswordResetEmail(email, token);
+    try {
+        await sendPasswordResetEmail(email, token);
+    } catch (mailErr) {
+        console.warn('Password reset email failed to send:', mailErr.message);
+    }
 }
 
 export async function resetPassword(token, newPassword) {

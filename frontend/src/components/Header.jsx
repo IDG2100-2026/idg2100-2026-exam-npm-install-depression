@@ -59,6 +59,17 @@ export default function Header() {
 //   localStorage.setItem("userId", userId);
 //   localStorage.setItem("userPoints", user?.points || 0);
 // }
+  useEffect(() => {
+    setUser(getCurrentUser());
+    function syncUser() { setUser(getCurrentUser()); }
+    window.addEventListener('storage', syncUser);     // other tabs
+    window.addEventListener('authChanged', syncUser); // same tab (login/logout)
+    return () => {
+      window.removeEventListener('storage', syncUser);
+      window.removeEventListener('authChanged', syncUser);
+    };
+  }, []);
+
   async function handleLogout() {
     await logout();
     setUser(null);

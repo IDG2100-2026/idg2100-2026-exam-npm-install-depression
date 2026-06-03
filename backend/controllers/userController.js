@@ -43,7 +43,8 @@ export const getUserProfile = async (req, res) => {
         const result = await userService.getUserProfile(
             req.params.id,
             req.user?.id,
-            req.user?.role
+            req.user?.role,
+            Number(req.query.matchPage) || 1
         );
         res.status(200).json(result);
     } catch (err) {
