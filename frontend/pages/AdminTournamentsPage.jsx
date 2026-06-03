@@ -24,6 +24,20 @@ export default function AdminTournamentsPage() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [tournaments, setTournaments] = useState([]);
+
+  useEffect(() => {
+    async function loadTournaments() {
+      try {
+        const res = await apiFetch('/tournaments?limit=50');
+        const data = await res.json();
+        setTournaments(data.tournaments || []);
+      } catch {
+        // fail silently — list is supplementary
+      }
+    }
+    loadTournaments();
+  }, []);
 
   // If editing, pre-fill form with existing tournament data
   useEffect(() => {
@@ -100,12 +114,68 @@ export default function AdminTournamentsPage() {
     }
   }
 
+  async function handleDelete(id, title) {
+    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    try {
+      await apiFetch(`/tournaments/${id}`, { method: 'DELETE' });
+      setTournaments(t => t.filter(t => t._id !== id));
+    } catch {
+      setError('Failed to delete tournament');
+    }
+  }
+
   if (loading) return <p>Loading...</p>;
 
   return (
     <main>
-      <h1>{isEdit ? 'Edit tournament' : 'Create tournament'}</h1>
+      <h1>{isEdit ? 'Edit tournament' : 'Tournaments'}</h1>
       <p><Link to="/admin">← Back to dashboard</Link></p>
+
+      {/* Existing tournaments list */}
+      {!isEdit && (
+        <section>
+          <h2>Existing tournaments</h2>
+          {tournaments.length === 0 ? (
+            <p className="text-muted">No tournaments yet.</p>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 8 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                  <th style={{ padding: '8px 12px' }}>Title</th>
+                  <th style={{ padding: '8px 12px' }}>Status</th>
+                  <th style={{ padding: '8px 12px' }}>Start date</th>
+                  <th style={{ padding: '8px 12px' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tournaments.map(t => (
+                  <tr key={t._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '8px 12px' }}>
+                      <Link to={`/tournaments/${t._id}`}>{t.title}</Link>
+                    </td>
+                    <td style={{ padding: '8px 12px' }}>
+                      <span className="badge">{t.status}</span>
+                    </td>
+                    <td style={{ padding: '8px 12px', fontSize: 14, color: 'var(--text)' }}>
+                      {t.startDate ? new Date(t.startDate).toLocaleDateString() : '—'}
+                    </td>
+                    <td style={{ padding: '8px 12px', display: 'flex', gap: 6 }}>
+                      <Link to={`/admin/tournaments?id=${t._id}`}>
+                        <button>Edit</button>
+                      </Link>
+                      <button className="btn-danger" onClick={() => handleDelete(t._id, t.title)}>
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+      )}
+
+      <h2>{isEdit ? 'Edit tournament' : 'Create new tournament'}</h2>
 
       <form onSubmit={handleSubmit} style={{ maxWidth: 560 }}>
 
