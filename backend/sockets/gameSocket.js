@@ -189,8 +189,10 @@ async function _enforceTimer(ns, matchId) {
 // Called from matchService when the last player joins and the game can start
 export async function broadcastGameStart(io, matchId) {
     const ns = io.of("/game");
+    console.log(`[broadcastGameStart] Starting game for match ${matchId}`);
     try {
         const match = await gameService.startGame(matchId);
+        console.log(`[broadcastGameStart] Game started, round ${match.currentRound}, dice for ${match.roundRolls.length} players`);
         const sockets = await ns.in(`match:${matchId}`).fetchSockets();
 
         const publicUpdate = {
@@ -220,6 +222,7 @@ export async function broadcastGameStart(io, matchId) {
         const timeControl = match.category.timeControl * 1000;
         setTimeout(() => _enforceTimer(ns, matchId), timeControl);
     } catch (err) {
+        console.error(`[broadcastGameStart] Failed for match ${matchId}:`, err.message);
         ns.to(`match:${matchId}`).emit("error", { message: "Failed to start game" });
     }
 }
