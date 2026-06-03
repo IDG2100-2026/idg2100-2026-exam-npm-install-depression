@@ -34,14 +34,61 @@ const player2 = createdUsers.find(u => u.username === 'dicemaster99');
 const player3 = createdUsers.find(u => u.username === 'rollin_thor');
 
 // Insert matches and link to real user IDs
+// const matchDocs = matchRawData.map((m, i) => new Match({
+//    ...m,
+//    players:
+//  i === 0 ? [player1._id, player2._id] :
+//  i === 1 ? [player1._id] :
+//  i === 2 ? [player1._id] :
+//  [player1._id, player2._id]
+//}));
+
 const matchDocs = matchRawData.map((m, i) => new Match({
     ...m,
+
     players:
-  i === 0 ? [player1._id, player2._id] :
-  i === 1 ? [player1._id] :
-  i === 2 ? [player1._id] :
-  [player1._id, player2._id]
+      i === 0 ? [player1._id, player2._id] :
+      i === 1 ? [player1._id] :
+      i === 2 ? [player1._id] :
+      [player1._id, player2._id],
+
+    playerStates:
+      m.status === "ongoing" || m.status === "completed"
+        ? [
+            {
+              userId: player1._id,
+              username: player1.username,
+              stack: 1000,
+              hasFolded: false,
+              currentRoundBet: 0,
+              heldDice: m.holds?.[0] || []
+            },
+            {
+              userId: player2._id,
+              username: player2.username,
+              stack: 1000,
+              hasFolded: false,
+              currentRoundBet: 0,
+              heldDice: m.holds?.[1] || []
+            }
+          ]
+        : [],
+
+    roundRolls:
+      m.status === "ongoing" || m.status === "completed"
+        ? [
+            {
+              userId: player1._id,
+              dice: m.rolls?.[0] || []
+            },
+            {
+              userId: player2._id,
+              dice: m.rolls?.[1] || []
+            }
+          ]
+        : []
 }));
+
 const createdMatches = await Match.insertMany(matchDocs);
 console.log(`Inserted ${createdMatches.length} matches`);
 

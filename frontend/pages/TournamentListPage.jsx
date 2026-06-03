@@ -93,7 +93,7 @@ export default function TournamentListPage() {
     <section>
       <h2>Upcoming tournaments</h2>
           {upcomingTournaments.map((tournament) => (
-          <article key={tournament.id}>
+          <article key={tournament._id}>
             <h3>{tournament.title}</h3>
             <p>Date: {new Date(tournament.startDate).toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             <p>
@@ -108,7 +108,7 @@ export default function TournamentListPage() {
     <section>
       <h2>Ongoing tournaments</h2>
       {ongoingTournaments.map((tournament) => (
-        <article key={tournament.id}>
+        <article key={tournament._id}>
           <h3>{tournament.title}</h3>
             <p>Date: {new Date(tournament.startDate).toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             <p>
@@ -121,7 +121,7 @@ export default function TournamentListPage() {
     <section>
       <h2>Finished tournaments</h2>
       {finishedTournaments.map((tournament) => (
-        <article key={tournament.id}>
+        <article key={tournament._id}>
           <h3>{tournament.title}</h3>
             <p>Date: {new Date(tournament.startDate).toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             <p>
