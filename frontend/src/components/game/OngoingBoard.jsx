@@ -4,7 +4,7 @@ import Dice from "./Dice";
 import { useState } from "react";
 
 function getDiceFace(die) {
-  if (typeof die === 'string') return die; // already a face label (A/K/Q/J/9/8)
+  if (typeof die === 'string') return die;
   const diceFaces = { 1: "7", 2: "8", 3: "J", 4: "Q", 5: "K", 6: "A" };
   return diceFaces[die] ?? "?";
 }
@@ -14,7 +14,6 @@ function OngoingBoard({ match, currentUserId, isPlayer, myDice, myHeld, onHoldDi
   const getId = (value) => value?._id || value;
   const spectatorPlayer = match.playerStates?.[0];
 
-  // Spectators follow the first player's perspective; players see their own
   const viewUserId = isPlayer ? currentUserId : getId(spectatorPlayer?.userId);
 
   const currentPlayerState = match.playerStates?.find((player) => {
@@ -101,7 +100,7 @@ function RollingPhase({ match, isPlayer, currentPlayerState, otherPlayerStates, 
         <section className="ongoing-board__game">
           <div className="ongoing-board__side ongoing-board__side--p1">
             <div className="ongoing-board__dice-row">
-              {myDice.length > 0 ? myDice.map((die, index) => (
+              {myDice && myDice.length > 0 ? myDice.map((die, index) => (
                 <div
                   key={index}
                   onClick={() => isPlayer && onHoldDie?.(index)}
@@ -175,7 +174,7 @@ function BettingPhase({ match, isPlayer, currentPlayerState, otherPlayerStates, 
         <section className="ongoing-board__game">
           <div className="ongoing-board__side ongoing-board__side--p1">
             <div className="ongoing-board__dice-row">
-              {myDice.map((die, index) => (
+              {myDice && myDice.map((die, index) => (
                 <div
                   key={index}
                   onClick={() => isPlayer && onHoldDie?.(index)}
