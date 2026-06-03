@@ -14,7 +14,7 @@ function rollDice() {
     );
 }
 
-// Build the safe public state; no other players' dice or held info is included
+
 function publicState(match) {
     return {
         _id: match._id,
@@ -30,12 +30,12 @@ function publicState(match) {
             stack: ps.stack,
             hasFolded: ps.hasFolded,
             currentRoundBet: ps.currentRoundBet
-            // heldDice intentionally omitted, allows bluffing
+
         }))
     };
 }
 
-// Called when the required number of players have joined
+
 export async function startGame(matchId) {
     const match = await Match.findById(matchId).populate('players', 'username');
     if (!match) throw Object.assign(new Error("Match not found"), { status: 404 });
@@ -69,14 +69,14 @@ export async function startRound(matchId) {
     match.pot = 0;
     match.currentBet = 0;
 
-    // Reset per-player round state
+
     match.playerStates.forEach(ps => {
         ps.hasFolded = false;
         ps.currentRoundBet = 0;
         ps.heldDice = [];
     });
 
-    // Generate and store rolls server-side
+
     match.roundRolls = match.playerStates.map(ps => ({
         userId: ps.userId,
         dice: rollDice()
@@ -84,7 +84,6 @@ export async function startRound(matchId) {
 
     await match.save();
 
-    // Return the full match so the socket handler can send private rolls to each player
     return match;
 }
 
@@ -141,7 +140,7 @@ export async function placeBet(matchId, userId, amount) {
     match.pot += extra;
     if (amount > match.currentBet) match.currentBet = amount;
 
-    // Transition from rolling to betting on first player action
+
     if (match.roundPhase === 'rolling') match.roundPhase = 'betting';
 
     match.markModified('playerStates');
@@ -162,7 +161,7 @@ export async function fold(matchId, userId) {
     if (ps.hasFolded) throw Object.assign(new Error("Already folded"), { status: 400 });
 
     ps.hasFolded = true;
-    // Folded chips stay in the pot; no refund
+
     if (match.roundPhase === 'rolling') match.roundPhase = 'betting';
     match.markModified('playerStates');
     await match.save();
@@ -173,7 +172,7 @@ export async function fold(matchId, userId) {
     return { state: publicState(match), roundEnded: false };
 }
 
-// All active (non-folded) players have matched currentBet, or only one remains
+
 function _allPlayersActed(match) {
     const active = match.playerStates.filter(ps => !ps.hasFolded);
     if (active.length <= 1) return true;
@@ -185,7 +184,7 @@ export async function revealRound(matchId) {
     match.roundPhase = 'revealing';
     await match.save();
 
-    // Determine round winner by best poker-dice hand among non-folded players
+
     const active = match.playerStates.filter(ps => !ps.hasFolded);
     const rollsMap = Object.fromEntries(
         match.roundRolls.map(r => [r.userId.toString(), r.dice])
@@ -198,7 +197,7 @@ export async function revealRound(matchId) {
         }
     }
 
-    // Award pot to round winner
+
     const winnerState = match.playerStates.find(ps => ps.userId.toString() === roundWinner.userId.toString());
     winnerState.stack += match.pot;
     match.pot = 0;
@@ -219,7 +218,7 @@ export async function revealRound(matchId) {
 }
 
 async function _finalizeGame(match) {
-    // Player with most stack wins
+
     const winner = match.playerStates.reduce((best, ps) =>
         ps.stack > best.stack ? ps : best
     );
@@ -235,7 +234,7 @@ async function _finalizeGame(match) {
         p.eloRatings[tcKey] = newRatings[i];
         p.totalMatches += 1;
         const ps = match.playerStates.find(s => s.userId.toString() === p._id.toString());
-        // Return in-game stack back to profile points
+
         p.points += ps.stack;
         if (p._id.toString() === winner.userId.toString()) p.wins += 1;
         else p.losses += 1;
@@ -248,7 +247,7 @@ async function _finalizeGame(match) {
     match.roundPhase = 'gameEnd';
     await match.save();
 
-    // If this match was part of a tournament, check whether the round is done
+
     if (match.tournamentId) {
         const result = await advanceTournamentRound(match.tournamentId);
         const io = getIO();
@@ -271,8 +270,7 @@ async function _finalizeGame(match) {
     return { winnerId: winner.userId, winnerUsername: winner.username };
 }
 
-// Naive poker-dice hand scorer: returns a numeric score for comparison
-// Higher = better hand. Counts frequencies of each die face.
+
 function _scoreHand(dice) {
     const freq = {};
     for (const d of dice) freq[d] = (freq[d] || 0) + 1;
@@ -280,14 +278,14 @@ function _scoreHand(dice) {
     const max = counts[0];
     const second = counts[1] || 0;
 
-    if (max === 5) return 7000000; // five of a kind
-    if (max === 4) return 6000000 + _highCard(dice); // four of a kind
-    if (max === 3 && second === 2) return 5000000 + _highCard(dice); // full house
+    if (max === 5) return 7000000; 
+    if (max === 4) return 6000000 + _highCard(dice); 
+    if (max === 3 && second === 2) return 5000000 + _highCard(dice); 
     if (_isStraight(dice)) return 4000000;
-    if (max === 3) return 3000000 + _highCard(dice); // three of a kind
-    if (max === 2 && second === 2) return 2000000 + _highCard(dice); // two pair
-    if (max === 2) return 1000000 + _highCard(dice); // one pair
-    return _highCard(dice); // high card
+    if (max === 3) return 3000000 + _highCard(dice); 
+    if (max === 2 && second === 2) return 2000000 + _highCard(dice); 
+    if (max === 2) return 1000000 + _highCard(dice); 
+    return _highCard(dice); 
 }
 
 function _highCard(dice) {
@@ -304,7 +302,7 @@ function _compareHands(diceA, diceB) {
     return _scoreHand(diceA) - _scoreHand(diceB);
 }
 
-// Restore state after page reload; returns public state + the requesting player's rolls
+
 export async function getMatchState(matchId, userId) {
     const match = await Match.findById(matchId);
     if (!match) throw Object.assign(new Error("Match not found"), { status: 404 });

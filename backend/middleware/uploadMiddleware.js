@@ -6,12 +6,10 @@ const storage = multer.diskStorage({
         cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        // Giving the file a unique name: trophy-timestamp.jpg
         cb(null, `trophy-${Date.now()}${path.extname(file.originalname)}`);
     }
 });
 
-// Filter to only permit images
 const fileFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
         cb(null, true);

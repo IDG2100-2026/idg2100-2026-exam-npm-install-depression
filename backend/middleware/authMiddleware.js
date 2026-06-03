@@ -11,7 +11,6 @@ export const verifyToken = async (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // IP mismatch check; record incident and reject
         if (decoded.ip && decoded.ip !== req.ip) {
             await SecurityIncident.create({
                 type: 'ip_mismatch',
@@ -19,7 +18,7 @@ export const verifyToken = async (req, res, next) => {
                 userAgent: req.headers['user-agent'] || '',
                 userId: decoded.id,
                 details: `Token issued for IP ${decoded.ip}, request from ${req.ip}`
-            }).catch(() => {}); // non-critical, don't block the error handler
+            }).catch(() => {}); 
             return res.status(401).json({ message: "Token IP mismatch — please log in again" });
         }
 
@@ -30,7 +29,7 @@ export const verifyToken = async (req, res, next) => {
     }
 };
 
-// For routes where auth is optional (e.g. profile view; email visibility differs)
+
 export const verifyTokenOptional = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

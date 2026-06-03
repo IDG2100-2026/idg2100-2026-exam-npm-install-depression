@@ -57,7 +57,7 @@ export async function deleteComment(commentId, userId, userRole) {
         throw err;
     }
 
-    // Remove reference from parent document
+
     if (comment.match) {
         await Match.findByIdAndUpdate(comment.match, { $pull: { comments: commentId } });
     }

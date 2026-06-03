@@ -14,34 +14,32 @@ import { User } from "../models/User.js";
 
 const router = express.Router();
 
-// Auth
+
 router.post("/register", registerRules, validate, register);
 router.post("/login", loginRules, validate, login);
 router.post("/refresh", refresh);
 router.post("/logout", verifyToken, logout);
 
-// Email verification
+
 router.get("/verify/:token", verifyEmail);
 router.post("/resend-verification", resendVerification);
 
-// Password reset
+
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPasswordRules, validate, resetPassword);
 
-// Leaderboard — public
+
 router.get("/leaderboard", getLeaderboard);
 
-// Public user list (slim — _id, username, points only)
+
 router.get("/directory", listUsersPublic);
 
-// Profile — optional auth so email is hidden from strangers
+
 router.get("/me", verifyToken, getCurrentUser);
 router.get("/:id", verifyTokenOptional, getUserProfile);
 router.patch("/:id", verifyToken, upload.single('profileImage'), updateProfileRules, validate, updateUserProfile);
 
-// Admin — user management
-// router.get("/", verifyToken, isAdmin, listUsers);
-// TEMP dev route — fake user selector
+
 router.get("/", listUsers);
 router.patch("/:id/ban", verifyToken, isAdmin, banUser);
 router.patch("/:id/unban", verifyToken, isAdmin, unbanUser);

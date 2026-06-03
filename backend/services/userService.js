@@ -5,7 +5,7 @@ import { Match } from "../models/Match.js";
 import { hashPwd, checkPwd } from "../utils/hash.js";
 import { sendVerificationEmail, sendPasswordResetEmail } from "../utils/mailer.js";
 
-const TOKEN_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+const TOKEN_EXPIRY_MS = 15 * 60 * 1000; 
 
 const ACCESS_TOKEN_EXPIRY = '15m';
 const REFRESH_TOKEN_EXPIRY = '7d';
@@ -119,7 +119,7 @@ export async function getUserProfile(id, requesterId, requesterRole, page = 1) {
         throw err;
     }
 
-    // Only the user themselves or an admin can see the email
+
     const isOwnerOrAdmin = requesterId === id || requesterRole === 'admin';
     if (!isOwnerOrAdmin) {
         delete user.email;
@@ -237,7 +237,7 @@ export async function verifyEmail(token) {
 
 export async function resendVerification(email) {
     const user = await User.findOne({ email });
-    // Always respond the same way to avoid leaking whether the email exists
+
     if (!user || user.isEmailVerified) return;
 
     const token = crypto.randomBytes(32).toString('hex');
@@ -253,7 +253,7 @@ export async function resendVerification(email) {
 
 export async function forgotPassword(email) {
     const user = await User.findOne({ email });
-    // Always respond the same way to avoid leaking whether the email exists
+
     if (!user) return;
 
     const token = crypto.randomBytes(32).toString('hex');
@@ -282,12 +282,12 @@ export async function resetPassword(token, newPassword) {
     user.password = await hashPwd(newPassword);
     user.passwordResetToken = null;
     user.passwordResetTokenExpiry = null;
-    // Invalidate any active refresh tokens so old sessions must re-login
+
     user.refreshToken = null;
     await user.save();
 }
 
-// Slim public list, used by frontend dev user-picker; no sensitive fields
+
 export async function listUsersPublic() {
     return User.find({ isBanned: false })
         .select('_id username points')

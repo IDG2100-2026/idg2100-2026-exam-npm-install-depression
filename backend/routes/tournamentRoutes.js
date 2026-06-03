@@ -14,22 +14,22 @@ import { validate } from "../middleware/validate.js";
 
 const router = express.Router();
 
-// Public
+
 router.get("/", tournamentQueryRules, validate, getAllTournaments);
 router.get("/upcoming", getUpcomingTournaments);
 router.get("/:id", getTournamentById);
 
-// Admin — create, edit, delete, start
+
 router.post("/", verifyToken, isAdmin, upload.single('image'), createTournamentRules, validate, createTournament);
 router.patch("/:id", verifyToken, isAdmin, updateTournamentRules, validate, updateTournament);
 router.delete("/:id", verifyToken, isAdmin, deleteTournament);
-router.patch("/:id/status", verifyToken, isAdmin, startTournament); // trigger start → status: ongoing
+router.patch("/:id/status", verifyToken, isAdmin, startTournament); 
 
-// Authenticated — join / leave
+
 router.post("/:id/participants", verifyToken, joinTournament);
 router.delete("/:id/participants/me", verifyToken, leaveTournament);
 
-// Comments on a tournament
+
 router.post("/:tournamentId/comments", verifyToken, addTournamentComment);
 router.delete("/comments/:commentId", verifyToken, deleteComment);
 

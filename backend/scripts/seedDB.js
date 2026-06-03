@@ -18,7 +18,7 @@ await Tournament.deleteMany({});
 await User.deleteMany({});
 console.log("Database cleared");
 
-// Hash passwords before inserting
+
 const userDocs = await Promise.all(
     userRawData.map(async ({ password, ...rest }) => ({
         ...rest,
@@ -33,7 +33,7 @@ const player1 = createdUsers.find(u => u.username === 'pokerqueen67');
 const player2 = createdUsers.find(u => u.username === 'dicemaster99');
 const player3 = createdUsers.find(u => u.username === 'rollin_thor');
 
-// Insert matches and link to real user IDs
+
 // const matchDocs = matchRawData.map((m, i) => new Match({
 //    ...m,
 //    players:
@@ -92,7 +92,7 @@ const matchDocs = matchRawData.map((m, i) => new Match({
 const createdMatches = await Match.insertMany(matchDocs);
 console.log(`Inserted ${createdMatches.length} matches`);
 
-// Insert tournaments, link author and participants
+
 const tournamentDocs = tournamentRawData.map((t, i) => new Tournament({
     ...t,
     author: admin._id,
@@ -103,7 +103,7 @@ const tournamentDocs = tournamentRawData.map((t, i) => new Tournament({
 const createdTournaments = await Tournament.insertMany(tournamentDocs);
 console.log(`Inserted ${createdTournaments.length} tournaments`);
 
-// Seed a few comments
+
 const commentDocs = [
     { text: "Great game, well played!", author: player2._id, match: createdMatches[0]._id },
     { text: "Looking forward to this tournament!", author: player1._id, tournament: createdTournaments[0]._id }

@@ -1,6 +1,6 @@
 const K = 32;
 
-// Original two-player Elo; kept for reference and direct 1v1 use
+
 export const calculateNewElo = (ratingA, ratingB, scoreA) => {
     const expectedA = 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
     const expectedB = 1 - expectedA;
@@ -11,10 +11,6 @@ export const calculateNewElo = (ratingA, ratingB, scoreA) => {
     };
 };
 
-// Multi-player Elo: run pairwise comparisons for every pair of players.
-// The winner (winnerIndex) gets score 1 against every other player;
-// all others get score 0 against the winner and 0.5 against each other.
-// Returns an array of new ratings in the same order as the input.
 export const calculateNewEloMultiplayer = (ratings, winnerIndex) => {
     const n = ratings.length;
     const deltas = new Array(n).fill(0);
@@ -30,7 +26,7 @@ export const calculateNewEloMultiplayer = (ratings, winnerIndex) => {
             } else if (j === winnerIndex) {
                 score_i = 0; score_j = 1;
             } else {
-                // Neither is the winner; treat as a draw between non-winners
+
                 score_i = 0.5; score_j = 0.5;
             }
 

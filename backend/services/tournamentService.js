@@ -135,7 +135,7 @@ export async function joinTournament(tournamentId, userId) {
         throw err;
     }
 
-    // Check buy-in and ELO eligibility
+
     const user = await User.findById(userId).select('points eloRatings');
     if (!user) {
         const err = new Error("User not found");
@@ -225,24 +225,22 @@ async function _createRoundMatches(participants, tournamentId, roundNumber) {
     return created;
 }
 
-// Called after each tournament match completes; advances to the next round or finalizes
 export async function advanceTournamentRound(tournamentId) {
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament || tournament.status !== 'ongoing') return;
 
-    // Check if every match in the current round is completed
+
     const currentRoundMatches = await Match.find({
         tournamentId,
         tournamentRound: tournament.currentRound
     });
 
     const allDone = currentRoundMatches.every(m => m.status === 'completed');
-    if (!allDone) return; // More matches still in progress
+    if (!allDone) return; 
 
     const totalRounds = tournament.format?.rounds ?? 3;
 
     if (tournament.currentRound >= totalRounds) {
-        // All rounds done; determine winner by most match wins
         const winCounts = {};
         for (const match of currentRoundMatches) {
             if (match.outcome) {
@@ -251,7 +249,7 @@ export async function advanceTournamentRound(tournamentId) {
             }
         }
 
-        // Tally wins across ALL rounds
+
         const allTournamentMatches = await Match.find({ tournamentId });
         const totalWins = {};
         for (const match of allTournamentMatches) {
@@ -261,7 +259,7 @@ export async function advanceTournamentRound(tournamentId) {
             }
         }
 
-        // Player with the most wins is the tournament winner
+
         const winnerId = Object.entries(totalWins)
             .sort(([, a], [, b]) => b - a)[0]?.[0];
 
@@ -269,7 +267,7 @@ export async function advanceTournamentRound(tournamentId) {
         return { finished: true, winnerId };
     }
 
-    // Start next round with the same participants
+
     const nextRound = tournament.currentRound + 1;
     const newMatches = await _createRoundMatches(tournament.participants, tournamentId, nextRound);
 

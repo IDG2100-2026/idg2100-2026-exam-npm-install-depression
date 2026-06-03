@@ -3,8 +3,7 @@ import { User } from "../models/User.js";
 const WEEKLY_POINTS = 100;
 const ONE_WEEK_MS   = 7 * 24 * 60 * 60 * 1000;
 
-// Adds 100 points to every registered, non-banned user.
-// Returns the number of users updated.
+
 export async function distributeWeeklyPoints() {
     const result = await User.updateMany(
         { role: 'registered', isBanned: false },
@@ -14,9 +13,7 @@ export async function distributeWeeklyPoints() {
     return result.modifiedCount;
 }
 
-// Sets up a weekly interval that fires the distribution.
-// Runs once immediately on startup so the first cycle begins from the time
-// the server first started, not from an arbitrary fixed calendar day.
+
 export function scheduleWeeklyPoints() {
     distributeWeeklyPoints().catch(err =>
         console.error('[points] Initial distribution failed:', err.message)

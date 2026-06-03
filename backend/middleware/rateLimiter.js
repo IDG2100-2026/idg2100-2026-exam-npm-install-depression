@@ -2,7 +2,7 @@ import rateLimit from "express-rate-limit";
 import { SecurityIncident } from "../models/SecurityIncident.js";
 
 export const apiLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
+    windowMs: 60 * 1000,
     max: 100,
     standardHeaders: true,
     legacyHeaders: false,
@@ -16,14 +16,13 @@ export const apiLimiter = rateLimit({
                 details: `${req.method} ${req.originalUrl}`
             });
         } catch (_) {
-            // Non-critical — log and continue
         }
         res.status(429).json({ message: "Too many requests, please try again later" });
     }
 });
 
 export const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000, 
     max: 20,
     standardHeaders: true,
     legacyHeaders: false,

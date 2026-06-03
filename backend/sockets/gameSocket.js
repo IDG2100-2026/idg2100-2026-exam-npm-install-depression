@@ -1,22 +1,6 @@
 import { Match } from "../models/Match.js";
 import * as gameService from "../services/gameService.js";
 
-// Namespace: /game
-// Room naming: "match:<matchId>"
-//
-// Client → Server events:
-//   join_match   { matchId }            — enter the room, receive state + own dice on reconnect
-//   hold_dice    { matchId, held }      — held = array of dice indices e.g. [0, 2, 4]
-//   place_bet    { matchId, amount }    — bet/match/raise
-//   fold         { matchId }            — fold this round
-//   reroll       { matchId }            — re-roll non-held dice
-//
-// Server → Client events:
-//   game_state       { state }          — broadcast to room (no dice inside)
-//   your_dice        { dice }           — private, sent only to the acting player
-//   round_revealed   { allRolls, roundWinnerId, state }   — broadcast when round ends
-//   game_over        { matchResult, state }               — broadcast when match ends
-//   error            { message }        — sent only to the socket that caused it
 
 export function registerGameSocket(io) {
     const ns = io.of("/game");
@@ -29,7 +13,6 @@ export function registerGameSocket(io) {
 
             socket.join(`match:${matchId}`);
 
-            // Restore state for the reconnecting player
             try {
                 const { state, yourDice } = await gameService.getMatchState(matchId, userId);
                 socket.emit("game_state", { state });
@@ -43,7 +26,7 @@ export function registerGameSocket(io) {
             try {
                 const userId = socket.data.userId;
                 const state = await gameService.holdDice(matchId, userId, held);
-                // Only tell others that this player has chosen dice (count only, no values)
+
                 ns.to(`match:${matchId}`).emit("game_state", { state });
             } catch (err) {
                 socket.emit("error", { message: err.message });
@@ -54,9 +37,9 @@ export function registerGameSocket(io) {
             try {
                 const userId = socket.data.userId;
                 const result = await gameService.rerollDice(matchId, userId);
-                // Send new dice to this player only
+
                 socket.emit("your_dice", { dice: result.dice });
-                // Broadcast updated public state to room (no dice values)
+
                 ns.to(`match:${matchId}`).emit("game_state", { state: result.state });
             } catch (err) {
                 socket.emit("error", { message: err.message });
@@ -81,7 +64,7 @@ export function registerGameSocket(io) {
                         roundWinnerId: result.roundWinnerId,
                         state: result.state
                     });
-                    // Start next round after a brief pause for UI to show results
+
                     setTimeout(() => _broadcastNextRound(ns, matchId), 3000);
                 } else {
                     ns.to(`match:${matchId}`).emit("game_state", { state: result.state });
@@ -124,7 +107,7 @@ async function _broadcastNextRound(ns, matchId) {
     try {
         const match = await gameService.startRound(matchId);
 
-        // Broadcast public state first (no dice)
+
         const publicUpdate = {
             _id: match._id,
             currentRound: match.currentRound,
@@ -141,14 +124,14 @@ async function _broadcastNextRound(ns, matchId) {
         };
         ns.to(`match:${matchId}`).emit("round_started", { state: publicUpdate });
 
-        // Send each player their own dice privately via their socket
+
         const sockets = await ns.in(`match:${matchId}`).fetchSockets();
         for (const s of sockets) {
             const roll = match.roundRolls.find(r => r.userId.toString() === s.data.userId);
             if (roll) s.emit("your_dice", { dice: roll.dice });
         }
 
-        const timeControl = match.category.timeControl * 1000; // convert to ms
+        const timeControl = match.category.timeControl * 1000; 
         setTimeout(() => _enforceTimer(ns, matchId), timeControl);
     } catch (err) {
         ns.to(`match:${matchId}`).emit("error", { message: "Failed to start next round" });
@@ -157,10 +140,10 @@ async function _broadcastNextRound(ns, matchId) {
 
 async function _enforceTimer(ns, matchId) {
     const match = await Match.findById(matchId);
-    // Only act if round is still active (player might have already bet)
+
     if (!match || match.roundPhase !== 'rolling' && match.roundPhase !== 'betting') return;
 
-    // Auto-match the current bet for every player who hasn't acted
+
     for (const ps of match.playerStates) {
         if (!ps.hasFolded && ps.currentRoundBet < match.currentBet) {
             const extra = Math.min(match.currentBet - ps.currentRoundBet, ps.stack);
@@ -172,7 +155,7 @@ async function _enforceTimer(ns, matchId) {
     match.markModified('playerStates');
     await match.save();
 
-    // Trigger reveal the same way a normal bet would
+
     const result = await gameService.revealRound(matchId);
     ns.to(`match:${matchId}`).emit("round_revealed", {
         allRolls: result.allRolls,
@@ -186,7 +169,6 @@ async function _enforceTimer(ns, matchId) {
     }
 }
 
-// Called from matchService when the last player joins and the game can start
 export async function broadcastGameStart(io, matchId) {
     const ns = io.of("/game");
     try {
@@ -211,7 +193,7 @@ export async function broadcastGameStart(io, matchId) {
 
         ns.to(`match:${matchId}`).emit("game_started", { state: publicUpdate });
 
-        // Deliver private rolls
+
         for (const s of sockets) {
             const roll = match.roundRolls.find(r => r.userId.toString() === s.data.userId);
             if (roll) s.emit("your_dice", { dice: roll.dice });

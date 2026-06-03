@@ -12,7 +12,6 @@ const commentSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    // A comment belongs to either a match or a tournament, not both
     match: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Match',

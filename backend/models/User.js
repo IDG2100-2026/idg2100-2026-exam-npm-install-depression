@@ -39,7 +39,6 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 100
     },
-    // Elo per time control (10s / 30s / 90s)
     eloRatings: {
         quick:    { type: Number, default: 1000 },
         standard: { type: Number, default: 1000 },
@@ -67,12 +66,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    // Refresh token stored server-side for invalidation on logout
     refreshToken: {
         type: String,
         default: null
     },
-    // Email verification
     isEmailVerified: {
         type: Boolean,
         default: false
@@ -85,7 +82,6 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
-    // Password reset
     passwordResetToken: {
         type: String,
         default: null

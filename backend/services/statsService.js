@@ -10,7 +10,7 @@ function oneMonthAgo() {
     return new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 }
 
-// Public — shown on the homepage
+
 export async function getPlatformActivity() {
     const since = oneWeekAgo();
 
@@ -27,7 +27,7 @@ export async function getPlatformActivity() {
     };
 }
 
-// Admin only — dashboard stats
+
 export async function getAdminDashboard() {
     const since = oneWeekAgo();
 

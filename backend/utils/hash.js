@@ -14,7 +14,7 @@ export async function checkPwd(pwd, storedHash) {
     const [salt, hash] = storedHash.split(':');
     const derivedKey = await scryptAsync(pwd, salt, KEY_LENGTH);
     const candidateHash = derivedKey.toString('hex');
-    // Constant-time comparison to prevent timing attacks
+
     return crypto.timingSafeEqual(
         Buffer.from(hash, 'hex'),
         Buffer.from(candidateHash, 'hex')

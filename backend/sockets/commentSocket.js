@@ -1,10 +1,5 @@
 import * as commentService from "../services/commentService.js";
 
-// Rooms:
-//   "match:<matchId>"  — viewers of a match
-//   "tournament:<id>"  — viewers of a tournament
-// Events emitted:
-//   new_comment  — the full populated comment object
 
 export function registerCommentSocket(io) {
     const commentNs = io.of("/comments");
@@ -28,7 +23,7 @@ export function registerCommentSocket(io) {
     });
 }
 
-// Emit from commentService after saving a comment so all room members see it
+
 export function emitNewComment(io, comment) {
     const ns = io.of("/comments");
     if (comment.match) {

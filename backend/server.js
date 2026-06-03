@@ -23,7 +23,7 @@ const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.BACKEND_APP_PORT || process.env.PORT || 4567;
 
-// Socket.io; allow same origin as CORS
+
 const io = new SocketServer(httpServer, {
     cors: { origin: process.env.CLIENT_ORIGIN || "http://localhost:5173", methods: ["GET", "POST"] }
 });
@@ -34,7 +34,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Rate limit all /api routes
+
 app.use("/api", apiLimiter);
 
 app.use("/api/users", userRoutes);
@@ -43,18 +43,18 @@ app.use("/api/tournaments", tournamentRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/uploads", express.static("uploads"));
 
-// 404 handler
+
 app.use((req, res) => {
     res.status(404).json({ message: "Route not found" });
 });
 
-// Global error handler
+
 app.use((err, req, res, next) => {
     console.error(err);
     res.status(err.status || 500).json({ message: err.message || "Internal server error" });
 });
 
-// Authenticate socket connections via the access token passed as a handshake query
+
 io.use((socket, next) => {
     const token = socket.handshake.auth?.token || socket.handshake.query?.token;
     if (!token) return next(new Error("Authentication required"));
@@ -68,7 +68,7 @@ io.use((socket, next) => {
     }
 });
 
-// Make io accessible to services without circular imports
+
 setIO(io);
 registerMatchSocket(io);
 registerCommentSocket(io);

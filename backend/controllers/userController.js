@@ -130,7 +130,6 @@ export const verifyEmail = async (req, res) => {
 export const resendVerification = async (req, res) => {
     try {
         await userService.resendVerification(req.body.email);
-        // Same message whether the email exists or not — avoids user enumeration
         res.status(200).json({ message: "If that email is registered and unverified, a new link has been sent" });
     } catch (err) {
         res.status(err.status || 500).json({ message: err.message });
