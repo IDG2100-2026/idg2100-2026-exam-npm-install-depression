@@ -1,6 +1,6 @@
 # Backend
 
-Node.js + Express + MongoDB + Socket.io. Based on my Oblig 3 backend but pretty much rewritten.
+Node.js + Express + MongoDB + Socket.io. Based on Emilie's Oblig 3 backend but heavily modified.
 
 ---
 
@@ -34,7 +34,7 @@ SMTP_USER=your_mailtrap_username
 SMTP_PASS=your_mailtrap_password
 ```
 
-Everything else works without it — you'll just get an SMTP error when registering or requesting a password reset.
+Everything else works without it, registration and password reset will still complete successfully, the email just won't send, and you'll see a warning in the backend terminal.
 
 ---
 
