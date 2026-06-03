@@ -36,29 +36,29 @@ export default function Header() {
     localStorage.setItem('boardBg', boardBg);
   }, [boardBg]);
 
-  useEffect(() => {
-    setUser(getCurrentUser());
-    function syncUser() { setUser(getCurrentUser()); }
-    window.addEventListener('storage', syncUser);
-    return () => window.removeEventListener('storage', syncUser);
-  }, []);
+  // useEffect(() => {
+  //   setUser(getCurrentUser());
+  //   function syncUser() { setUser(getCurrentUser()); }
+  //   window.addEventListener('storage', syncUser);
+  //   return () => window.removeEventListener('storage', syncUser);
+  // }, []);
 
-function handleUserChange(e) {
-  const userId = e.target.value;
+// function handleUserChange(e) {
+//   const userId = e.target.value;
 
-  setSelectedUser(userId);
+//   setSelectedUser(userId);
 
-  if (!userId) {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userPoints");
-    return;
-  }
+//   if (!userId) {
+//     localStorage.removeItem("userId");
+//     localStorage.removeItem("userPoints");
+//     return;
+//   }
 
-  const user = users.find(user => user._id === userId);
+//   const user = users.find(user => user._id === userId);
 
-  localStorage.setItem("userId", userId);
-  localStorage.setItem("userPoints", user?.points || 0);
-}
+//   localStorage.setItem("userId", userId);
+//   localStorage.setItem("userPoints", user?.points || 0);
+// }
   async function handleLogout() {
     await logout();
     setUser(null);

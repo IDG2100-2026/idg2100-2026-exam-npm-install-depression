@@ -16,10 +16,7 @@ export default function CreateGamePage() {
   async function handleCreateMatch(e) {
     e.preventDefault();
 
-    const userId = localStorage.getItem("userId");
-
     const newMatch = await createMatch({
-      userId, //userId: req.user.id (This when we have authentication)
       category: {
         bestOf,
         straightsAllowed,

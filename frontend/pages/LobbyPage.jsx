@@ -1,8 +1,18 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from "react";
-import { getMatches } from '../src/api/matchesApi';
+import {
+  getMatches,
+  joinMatch,
+  getCurrentUser
+} from '../src/api/matchesApi';
 import { useNavigate } from "react-router-dom";
-import { joinMatch } from "../src/api/matchesApi";
+
+
+// import { Link } from 'react-router-dom';
+// import { useEffect, useState } from "react";
+// import { getMatches, joinMatch } from '../src/api/matchesApi';
+// import { getCurrentUser } from '../src/api/usersApi';
+// import { useNavigate } from "react-router-dom";
 
 export default function LobbyPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,77 +23,75 @@ export default function LobbyPage() {
   const [timeControlFilter, setTimeControlFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [matches, setMatches] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-        async function loadMatches() {
-          const data = await getMatches();
-          setMatches(data);
-        }
-      
-        loadMatches();
-  }, []);
-    
+    async function loadData() {
+      const matchesData = await getMatches();
+      setMatches(matchesData);
 
-  // JOINING OR SPECTATING A GAME
+      try {
+        const userData = await getCurrentUser();
+        setCurrentUser(userData);
+      } catch {
+        setCurrentUser(null);
+      }
+    }
+
+    loadData();
+  }, []);
 
   const navigate = useNavigate();
-    
-  async function handleJoin(matchId) {
-      const userId = localStorage.getItem("userId");
-    
-      await joinMatch(matchId, userId);
-    
-      navigate(`/games/${matchId}`);
-  }
 
-  //Filters
+  async function handleJoin(matchId) {
+    await joinMatch(matchId);
+    navigate(`/games/${matchId}`);
+  }
 
   const availableMatches = matches;
 
   const filteredMatches = availableMatches.filter(match => {
-  const matchesSearch =
-    searchTerm.length < 3 ||
-    match._id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      searchTerm.length < 3 ||
+      match._id.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const matchesStraights =
-    straightsFilter === "all" ||
-    String(match.category?.straightsAllowed) === straightsFilter;
+    const matchesStraights =
+      straightsFilter === "all" ||
+      String(match.category?.straightsAllowed) === straightsFilter;
 
-  const matchesRounds =
-    roundsFilter === "all" ||
-    Number(roundsFilter) === match.category?.bestOf;
+    const matchesRounds =
+      roundsFilter === "all" ||
+      Number(roundsFilter) === match.category?.bestOf;
 
-  const matchesPlayers =
-    playersFilter === "all" ||
-    Number(playersFilter) === match.category?.playerCount;
+    const matchesPlayers =
+      playersFilter === "all" ||
+      Number(playersFilter) === match.category?.playerCount;
 
-  const matchesBuyIn =
-    buyInFilter === "all" ||
-    Number(buyInFilter) === match.category?.buyIn;
+    const matchesBuyIn =
+      buyInFilter === "all" ||
+      Number(buyInFilter) === match.category?.buyIn;
 
-  const matchesTimeControl =
-    timeControlFilter === "all" ||
-    Number(timeControlFilter) === match.category?.timeControl;
+    const matchesTimeControl =
+      timeControlFilter === "all" ||
+      Number(timeControlFilter) === match.category?.timeControl;
 
-  return (
-    matchesSearch &&
-    matchesStraights &&
-    matchesRounds &&
-    matchesPlayers &&
-    matchesBuyIn &&
-    matchesTimeControl
+    return (
+      matchesSearch &&
+      matchesStraights &&
+      matchesRounds &&
+      matchesPlayers &&
+      matchesBuyIn &&
+      matchesTimeControl
+    );
+  });
+
+  const matchesPerPage = 6;
+  const totalPages = Math.ceil(filteredMatches.length / matchesPerPage);
+
+  const paginatedMatches = filteredMatches.slice(
+    (currentPage - 1) * matchesPerPage,
+    currentPage * matchesPerPage
   );
-});
-
-//Pagination
-
-const matchesPerPage = 6;
-const totalPages = Math.ceil(filteredMatches.length / matchesPerPage);
-
-const paginatedMatches = filteredMatches.slice(
-  (currentPage - 1) * matchesPerPage,
-  currentPage * matchesPerPage
-);
 
   return (
     <div>
@@ -131,41 +139,43 @@ const paginatedMatches = filteredMatches.slice(
       </select>
 
       {paginatedMatches.map(match => {
-        const userId = localStorage.getItem("userId");
-        const userPoints = Number(localStorage.getItem("userPoints"));
+        const userId = currentUser?._id;
+        const userPoints = currentUser?.points ?? 0;
 
         const matchIsFull =
-        (match.players?.length || 0) >= match.category?.playerCount;
+          (match.players?.length || 0) >= match.category?.playerCount;
 
-        const canJoin = userId 
-        && match.status === "waiting"
-        && userPoints >= match.category?.buyIn
-        && !matchIsFull;
-        
+        const canJoin =
+          userId &&
+          match.status === "waiting" &&
+          userPoints >= match.category?.buyIn &&
+          !matchIsFull;
+
         return (
-        <article key={match._id}>
-          <h2>Match {match._id}</h2>
+          <article key={match._id}>
+            <h2>Match {match._id}</h2>
 
-          <p>Status: {match.status}</p>
-          <p>Players: {match.players?.length || 0}/{match.category?.playerCount}</p>
-          <p>Best of: {match.category?.bestOf}</p>
-          <p>Straights allowed: {match.category?.straightsAllowed ? " Yes" : " No"}</p>
-          <p>Buy-in: {match.category?.buyIn}</p>
+            <p>Status: {match.status}</p>
+            <p>Players: {match.players?.length || 0}/{match.category?.playerCount}</p>
+            <p>Best of: {match.category?.bestOf}</p>
+            <p>Straights allowed: {match.category?.straightsAllowed ? " Yes" : " No"}</p>
+            <p>Buy-in: {match.category?.buyIn}</p>
 
-      {canJoin ? (
-        <button onClick={() => handleJoin(match._id)}>
-          Join game
-        </button>
-      ) : (
-        <Link to={`/games/${match._id}`}>
-          Spectate
-          {userPoints < match.category?.buyIn && " (not enough points)"}
-        </Link>
-      )}
-        </article>
-      );
-    })}
-    <button
+            {canJoin ? (
+              <button onClick={() => handleJoin(match._id)}>
+                Join game
+              </button>
+            ) : (
+              <Link to={`/games/${match._id}`}>
+                Spectate
+                {userPoints < match.category?.buyIn && " (not enough points)"}
+              </Link>
+            )}
+          </article>
+        );
+      })}
+
+      <button
         disabled={currentPage === 1}
         onClick={() => setCurrentPage(currentPage - 1)}
       >

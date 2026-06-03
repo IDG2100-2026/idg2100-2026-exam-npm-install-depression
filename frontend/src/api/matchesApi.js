@@ -39,20 +39,14 @@ export async function getMatchState(matchId) {
 // }
 
 //FINAL CREATE MATCH WITH TOKEN
-// export async function createMatch(matchData, token) {
-//   const response = await fetch("http://localhost:4567/api/matches", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${token}`,
-//     },
-//     body: JSON.stringify(matchData),
-//   });
+export async function createMatch(matchData) {
+    const res = await apiFetch('/matches', {
+        method: 'POST',
+        body: JSON.stringify(matchData)
+    });
 
-//   const data = await response.json();
-
-//   return data;
-// }
+    return res.json();
+}
 
 
 //CREATE MATCH FOR TESTING
@@ -69,16 +63,19 @@ export async function getMatchState(matchId) {
 
 //   return data;
 // }
-export async function createMatch(category) {
-    const res = await apiFetch('/matches', {
-        method: 'POST',
-        body: JSON.stringify({ category })
-    });
-    return res.json();
-}
+// export async function createMatch(category) {
+//     const res = await apiFetch('/matches', {
+//         method: 'POST',
+//         body: JSON.stringify({ category })
+//     });
+//     return res.json();
+// }
 
 export async function joinMatch(matchId) {
-    const res = await apiFetch(`/matches/${matchId}/players`, { method: 'POST' });
+    const res = await apiFetch(`/matches/${matchId}/players`, {
+        method: 'POST'
+    });
+
     return res.json();
 }
 
@@ -97,5 +94,10 @@ export async function addMatchComment(matchId, text) {
 
 export async function deleteComment(commentId) {
     const res = await apiFetch(`/matches/comments/${commentId}`, { method: 'DELETE' });
+    return res.json();
+}
+
+export async function getCurrentUser() {
+    const res = await apiFetch('/users/me');
     return res.json();
 }

@@ -1,0 +1,110 @@
+.comment-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #0d1916;
+  color: #fff1ce;
+  border-radius: 10px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.comment-section h2 {
+  margin-bottom: 1rem;
+  color: #fff1ce;
+}
+
+.comment-section__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.comment {
+  padding: 1rem;
+  background-color: #08110f;
+  border-left: 4px solid #1c5f4a;
+  border-radius: 10px;
+}
+
+.comment strong {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #fff1ce;
+  font-weight: 600;
+}
+
+.comment p {
+  margin: 0;
+  color: #fff1ce;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.comment-section form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.comment-section textarea {
+  min-height: 90px;
+  resize: vertical;
+  padding: 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #1c5f4a;
+  background-color: #08110f;
+  color: #fff1ce;
+  font-family: "Jost", sans-serif;
+}
+
+.comment-section textarea:focus {
+  outline: none;
+  border-color: #1c5f4a;
+}
+
+.comment-section textarea::placeholder {
+  color: rgba(255, 241, 206, 0.6);
+}
+
+.comment-section button {
+  align-self: flex-end;
+  background-color: #bc2c1a;
+  color: white;
+  font-family: "Jost", sans-serif;
+  font-weight: 200;
+  border: none;
+  border-radius: 50px;
+  padding: 7px 18px;
+  min-width: 120px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.comment-section button:hover {
+  background-color: #d23a25;
+}
+
+.comment-section__error {
+  color: #ffb3a8;
+  font-size: 0.9rem;
+}
+
+.comment-section__list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.comment-section__list::-webkit-scrollbar-track {
+  background-color: #08110f;
+}
+
+.comment-section__list::-webkit-scrollbar-thumb {
+  background-color: #1c5f4a;
+  border-radius: 10px;
+}
+
+.comment-section__list::-webkit-scrollbar-thumb:hover {
+  background-color: #26705a;
+}

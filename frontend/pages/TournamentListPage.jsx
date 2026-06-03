@@ -68,6 +68,7 @@ export default function TournamentListPage() {
     (tournament) => tournament.status === 'finished'
   );
 
+  console.log(tournaments);
   
 
   return (
@@ -94,11 +95,13 @@ export default function TournamentListPage() {
           {upcomingTournaments.map((tournament) => (
           <article key={tournament.id}>
             <h3>{tournament.title}</h3>
-            <p>Date: {tournament.date}</p>
+            <p>Date: {tournament.startDate}</p>
             <p>
-              Players: {tournament.players}/{tournament.maxPlayers}
+              Players: {tournament.participants.length}/{tournament.rules.maxParticipants}
             </p>
-            <Link to={`/tournaments/${tournament.id}`}>View tournament</Link>
+            <p>Description: {tournament.description} </p>
+            {console.log(tournament)}
+            <Link to={`/tournaments/${tournament._id}`}>View tournament</Link>
           </article>
         ))}
     </section>
@@ -109,9 +112,9 @@ export default function TournamentListPage() {
           <h3>{tournament.title}</h3>
             <p>Date: {tournament.date}</p>
             <p>
-              Players: {tournament.players}/{tournament.maxPlayers}
+              Players: {tournament.participants.length}/{tournament.rules.maxParticipants}
             </p>
-            <Link to={`/tournaments/${tournament.id}`}>View tournament</Link>
+            <Link to={`/tournaments/${tournament._id}`}>View tournament</Link>
         </article>
       ))}
     </section>
@@ -120,11 +123,12 @@ export default function TournamentListPage() {
       {finishedTournaments.map((tournament) => (
         <article key={tournament.id}>
           <h3>{tournament.title}</h3>
-            <p>Date: {tournament.date}</p>
+            <p>Date: {tournament.startDate}</p>
             <p>
-              Players: {tournament.players}/{tournament.maxPlayers}
+              Players: {tournament.participants.length}/{tournament.rules.maxParticipants}
             </p>
-            <Link to={`/tournaments/${tournament.id}`}>View tournament</Link>
+            <p>Description: {tournament.description} </p>
+            <Link to={`/tournaments/${tournament._id}`}>View tournament</Link>
             </article>
       ))}
     </section>

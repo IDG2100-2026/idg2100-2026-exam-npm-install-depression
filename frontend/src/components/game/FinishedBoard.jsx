@@ -9,7 +9,7 @@ function FinishedBoard({ match }){
           <div className="ongoing-board__content">
             <header className="ongoing-board__players">
             {players.map((player)=> (
-                <div className="ongoing-board__player" key="player._id">
+                <div className="ongoing-board__player" key={player._id}>
                     <h3>{player.username}</h3>
                     <p>{player.stack}</p>
                 </div>
