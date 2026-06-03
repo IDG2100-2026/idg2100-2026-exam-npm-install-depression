@@ -72,6 +72,13 @@
   align-items: center;
 }
 
+.ongoing-board h2,
+.ongoing-board h3,
+.ongoing-board h4,
+.ongoing-board p {
+  color: inherit;
+}
+
 .ongoing-board button {
   background-color: #BC2C1A;
   color: white;
