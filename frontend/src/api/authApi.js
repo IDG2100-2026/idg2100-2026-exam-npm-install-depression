@@ -28,7 +28,11 @@ export async function register(username, email, password, age) {
         body: JSON.stringify({ username, email, password, age })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Registration failed');
+    if (!res.ok) {
+        // express-validator returns { errors: [{msg, path}] }, extract the messages
+        const msg = data.errors?.map(e => e.msg).join(', ') || data.message || 'Registration failed';
+        throw new Error(msg);
+    }
     return data;
 }
 
