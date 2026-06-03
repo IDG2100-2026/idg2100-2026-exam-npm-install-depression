@@ -85,7 +85,7 @@ export default function LobbyPage() {
     );
   });
 
-  const matchesPerPage = 6;
+  const matchesPerPage = Number(localStorage.getItem('lobbyCount')) || 6;
   const totalPages = Math.ceil(filteredMatches.length / matchesPerPage);
 
   const paginatedMatches = filteredMatches.slice(
