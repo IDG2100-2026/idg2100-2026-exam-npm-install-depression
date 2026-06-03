@@ -28,7 +28,10 @@ const io = new SocketServer(httpServer, {
     cors: { origin: process.env.CLIENT_ORIGIN || "http://localhost:5173", methods: ["GET", "POST"] }
 });
 
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || "http://localhost:5173" }));
+app.use(cors({
+  origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+  credentials: true
+}));
 app.use(express.json());
 
 // Rate limit all /api routes

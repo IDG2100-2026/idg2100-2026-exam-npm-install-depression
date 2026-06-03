@@ -37,9 +37,9 @@ const player3 = createdUsers.find(u => u.username === 'rollin_thor');
 const matchDocs = matchRawData.map((m, i) => new Match({
     ...m,
     players:
-  i === 0 ? [] :
+  i === 0 ? [player1._id, player2._id] :
   i === 1 ? [player1._id] :
-  i === 2 ? [player1._id, player2._id, player3._id] :
+  i === 2 ? [player1._id] :
   [player1._id, player2._id]
 }));
 const createdMatches = await Match.insertMany(matchDocs);

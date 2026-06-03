@@ -7,11 +7,18 @@ export const createMatch = async (req, res) => {
             userId: req.user.id,
             category: req.body.category
         });
-        res.status(201).json({ message: "Match created", match });
+
+        res.status(201).json({
+            message: "Match created",
+            match
+        });
     } catch (err) {
-        res.status(err.status || 500).json({ message: err.message });
+        res.status(err.status || 500).json({
+            message: err.message
+        });
     }
 };
+
 
 export const getAllMatches = async (req, res) => {
     try {
@@ -39,6 +46,10 @@ export const getMatchById = async (req, res) => {
     try {
         const match = await matchService.getMatchById(req.params.id);
         res.status(200).json(match);
+        console.log(
+            "MATCH FROM SERVICE:",
+            JSON.stringify(match, null, 2)
+        );
     } catch (err) {
         res.status(err.status || 500).json({ message: err.message });
     }
@@ -61,6 +72,21 @@ export const joinMatch = async (req, res) => {
         res.status(err.status || 500).json({ message: err.message });
     }
 };
+
+// export const joinMatch = async (req, res) => {
+//   try {
+//     console.log("BODY:", req.body);
+
+//     const match = await matchService.joinMatch(
+//       req.params.id,
+//       req.body.userId
+//     );
+
+//     res.status(200).json({ message: "Joined match", match });
+//   } catch (err) {
+//     res.status(err.status || 500).json({ message: err.message });
+//   }
+// };
 
 export const leaveMatch = async (req, res) => {
     try {

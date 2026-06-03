@@ -13,18 +13,53 @@ export const addMatchComment = async (req, res) => {
     }
 };
 
-export const addTournamentComment = async (req, res) => {
-    try {
-        const comment = await commentService.addTournamentComment({
-            text: req.body.text,
-            tournamentId: req.params.tournamentId,
-            authorId: req.user.id
-        });
-        res.status(201).json({ message: "Comment added", comment });
-    } catch (err) {
-        res.status(err.status || 500).json({ message: err.message });
-    }
-};
+// export const addTournamentComment = async (req, res) => {
+//     try {
+//         const comment = await commentService.addTournamentComment({
+//             text: req.body.text,
+//             tournamentId: req.params.tournamentId,
+//             authorId: req.user.id
+//         });
+//         res.status(201).json({ message: "Comment added", comment });
+//     } catch (err) {
+//         res.status(err.status || 500).json({ message: err.message });
+//     }
+// };
+
+// export async function addTournamentComment(req, res) {
+//   try {
+//     const comment = await commentService.addTournamentComment(
+//       req.params.tournamentId,
+//       req.user.id,
+//       req.body.text
+//     );
+
+//     res.status(201).json(comment);
+//   } catch (err) {
+//     res.status(err.status || 500).json({
+//       message: err.message
+//     });
+//   }
+// }
+
+export async function addTournamentComment(req, res) {
+  try {
+    const comment = await commentService.addTournamentComment(
+      req.params.tournamentId,
+      req.user.id,
+      req.body.text
+    );
+
+    res.status(201).json({
+      message: "Comment added",
+      comment
+    });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      message: err.message
+    });
+  }
+}
 
 export const deleteComment = async (req, res) => {
     try {

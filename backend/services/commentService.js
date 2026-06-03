@@ -20,20 +20,28 @@ export async function addMatchComment({ text, matchId, authorId }) {
     return comment;
 }
 
-export async function addTournamentComment({ text, tournamentId, authorId }) {
-    const tournament = await Tournament.findById(tournamentId);
-    if (!tournament) {
-        const err = new Error("Tournament not found");
-        err.status = 404;
-        throw err;
-    }
+export async function addTournamentComment(
+  tournamentId,
+  userId,
+  text
+) {
+  const tournament = await Tournament.findById(tournamentId);
 
-    const comment = new Comment({ text, author: authorId, tournament: tournamentId });
-    await comment.save();
-    await Tournament.findByIdAndUpdate(tournamentId, { $push: { comments: comment._id } });
-    await comment.populate('author', 'username');
-    emitNewComment(getIO(), comment.toObject());
-    return comment;
+  if (!tournament) {
+    throw new Error("Tournament not found");
+  }
+
+  const comment = await Comment.create({
+    text,
+    author: userId,
+    tournament: tournamentId
+  });
+
+  tournament.comments.push(comment._id);
+  await tournament.save();
+
+  return Comment.findById(comment._id)
+    .populate("author", "username");
 }
 
 export async function deleteComment(commentId, userId, userRole) {

@@ -40,6 +40,7 @@
         "password": "Thor1234",
         "age": 27,
         "role": "registered",
+        "isEmailVerified": true,
         "aboutMe": "By Odin's dice!",
         "points": 49,
         "eloRatings": { "quick": 980, "standard": 970, "classical": 960 },

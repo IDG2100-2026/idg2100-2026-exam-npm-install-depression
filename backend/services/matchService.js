@@ -1,6 +1,8 @@
 import { Match } from "../models/Match.js";
 import { User } from "../models/User.js";
 import { calculateNewEloMultiplayer } from "../utils/eloCalculator.js";
+import { getIO } from "../sockets/index.js";
+import { broadcastGameStart } from "../sockets/gameSocket.js";
 
 export async function createMatch({ userId, category }) {
     const user = await User.findById(userId);
@@ -60,12 +62,12 @@ export async function getMatchById(id) {
 }
 
 export async function joinMatch(matchId, userId) {
-    const caller = await User.findById(userId).select('isEmailVerified');
-    if (!caller?.isEmailVerified) {
-        const err = new Error("You must verify your email before joining a match");
-        err.status = 403;
-        throw err;
-    }
+    // const caller = await User.findById(userId).select('isEmailVerified');
+    // if (!caller?.isEmailVerified) {
+    //     const err = new Error("You must verify your email before joining a match");
+    //     err.status = 403;
+    //     throw err;
+    // }
 
     const match = await Match.findById(matchId);
     if (!match) {
@@ -98,12 +100,23 @@ export async function joinMatch(matchId, userId) {
         throw err;
     }
 
+    // match.players.push(userId);
+    // if (match.players.length >= maxPlayers) {
+    //     match.status = 'ongoing';
+    // }
+    // await match.save();
+    // return match;
+
     match.players.push(userId);
-    if (match.players.length >= maxPlayers) {
-        match.status = 'ongoing';
-    }
     await match.save();
+    
+    if (match.players.length >= maxPlayers) {
+        const io = getIO();
+        await broadcastGameStart(io, match._id);
+    }
+    
     return match;
+
 }
 
 export async function leaveMatch(matchId, userId) {
@@ -166,6 +179,7 @@ export async function finalizeMatch(matchId, winnerId) {
 
     match.outcome = winnerId;
     match.status = 'completed';
+    match.roundPhase = 'gameEnd';
     await match.save();
     return match;
 }

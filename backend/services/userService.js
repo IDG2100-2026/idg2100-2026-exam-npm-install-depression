@@ -301,3 +301,17 @@ export async function listUsers({ page = 1, limit = 20, search = '' }) {
         .lean();
     return { users, total, page, limit };
 }
+
+export async function getCurrentUser(userId) {
+    const user = await User.findById(userId)
+        .select("-password -refreshToken -verificationToken")
+        .lean();
+
+    if (!user) {
+        const err = new Error("User not found");
+        err.status = 404;
+        throw err;
+    }
+
+    return user;
+}

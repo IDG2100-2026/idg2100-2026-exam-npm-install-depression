@@ -2,7 +2,7 @@ import express from "express";
 import {
     register, login, refresh, logout,
     verifyEmail, resendVerification, forgotPassword, resetPassword,
-    getUserProfile, updateUserProfile,
+    getUserProfile, updateUserProfile, getCurrentUser,
     getLeaderboard, listUsersPublic, listUsers,
     banUser, unbanUser, makeAdmin
 } from "../controllers/userController.js";
@@ -35,6 +35,7 @@ router.get("/leaderboard", getLeaderboard);
 router.get("/directory", listUsersPublic);
 
 // Profile — optional auth so email is hidden from strangers
+router.get("/me", verifyToken, getCurrentUser);
 router.get("/:id", verifyTokenOptional, getUserProfile);
 router.patch("/:id", verifyToken, upload.single('profileImage'), updateProfileRules, validate, updateUserProfile);
 

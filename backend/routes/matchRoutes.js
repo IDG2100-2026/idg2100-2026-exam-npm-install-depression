@@ -16,8 +16,8 @@ router.get("/top", getTopMatches);
 router.get("/:id", getMatchById);
 
 // Authenticated
-router.post("/", verifyToken, createMatchRules, validate, createMatch);
-router.post("/:id/players", joinMatch);          // join
+router.post("/", createMatchRules, verifyToken, validate, createMatch);
+router.post("/:id/players", verifyToken, joinMatch);          // join
 router.delete("/:id/players/me", verifyToken, leaveMatch);    // leave
 router.patch("/:id/outcome", verifyToken, isAdmin, finalizeMatch);
 
