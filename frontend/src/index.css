@@ -1,8 +1,8 @@
-/*  FONTS  */
+
 @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap');
 
 
-/*  VARIABLES  */
+
 
 :root {
   --text: #6b6375;
@@ -36,7 +36,7 @@
   }
 }
 
-/* Manual dark theme; set via data-theme="dark" on <html> */
+
 [data-theme="dark"] {
   --text: #9ca3af;
   --text-h: #f3f4f6;
@@ -50,7 +50,7 @@
     rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }
 
-/* Follow OS preference when no manual override is set */
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --text: #9ca3af;
@@ -66,7 +66,7 @@
   }
 }
 
-/*  BASE  */
+
 
 body {
   margin: 0;
@@ -125,7 +125,7 @@ footer nav a {
   font-size: 14px;
 }
 
-/*  TYPOGRAPHY  */
+
 
 h1, h2, h3 {
   font-family: var(--heading);
@@ -190,7 +190,7 @@ code {
   background: var(--code-bg);
 }
 
-/*  HEADER  */
+
 
 header {
   display: flex;
@@ -208,7 +208,7 @@ header {
   }
 }
 
-/* Desktop nav */
+
 .nav-links {
   display: flex;
   align-items: center;
@@ -235,7 +235,7 @@ nav a:hover {
   text-decoration: none;
 }
 
-/* Hamburger button, hidden on desktop */
+
 .hamburger {
   display: none;
   background: none;
@@ -251,7 +251,7 @@ nav a:hover {
   border-color: transparent;
 }
 
-/* Mobile nav drawer */
+
 .mobile-menu {
   position: absolute;
   top: 100%;
@@ -293,7 +293,7 @@ nav a:hover {
   margin: 8px 0;
 }
 
-/* Switch to hamburger layout on small screens */
+
 @media (max-width: 768px) {
   .nav-links {
     display: none;
@@ -310,7 +310,7 @@ nav a:hover {
   }
 }
 
-/*  BUTTONS  */
+
 
 button {
   cursor: pointer;
@@ -366,7 +366,7 @@ button.active {
   color: #dc2626;
 }
 
-/*  FORMS  */
+
 
 label {
   display: block;
@@ -416,7 +416,7 @@ textarea:focus {
   margin-top: 4px;
 }
 
-/*  SECTIONS  */
+
 
 section {
   margin-bottom: 40px;
@@ -426,7 +426,7 @@ section:last-child {
   margin-bottom: 0;
 }
 
-/*  CARDS  */
+
 
 .card {
   background: var(--bg);
@@ -436,7 +436,7 @@ section:last-child {
   text-align: left;
 }
 
-/*  PAGE LAYOUT  */
+
 
 .page {
   padding: 48px 56px;
@@ -454,7 +454,7 @@ section:last-child {
   padding: 0 24px;
 }
 
-/*  APPEARANCE PANEL  */
+
 
 .appearance-panel {
   position: absolute;
@@ -504,7 +504,7 @@ section:last-child {
   border-color: var(--accent);
 }
 
-/*  AVATAR  */
+
 
 .avatar {
   display: inline-flex;
@@ -520,7 +520,7 @@ section:last-child {
   flex-shrink: 0;
 }
 
-/*  MISC  */
+
 
 .badge {
   display: inline-block;
@@ -544,14 +544,14 @@ section:last-child {
   font-size: 14px;
 }
 
-/*  MOBILE GENERAL  */
+
 
 img {
   max-width: 100%;
   height: auto;
 }
 
-/* Prevent wide tables from breaking layout */
+
 .table-scroll {
   overflow-x: auto;
   width: 100%;
@@ -571,12 +571,12 @@ img {
     padding: 20px;
   }
 
-  /* Stack any flex row into a column on mobile */
+
   .stack-mobile {
     flex-direction: column !important;
   }
 
-  /* Hide elements that shouldn't appear on mobile */
+
   .hide-mobile {
     display: none !important;
   }

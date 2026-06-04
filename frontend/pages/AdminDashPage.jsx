@@ -31,7 +31,7 @@ export default function AdminDashPage() {
     <main>
       <h1>Admin Dashboard</h1>
 
-      {/* Admin page links */}
+
       <section>
         <h2>Admin pages</h2>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -41,7 +41,7 @@ export default function AdminDashPage() {
         </div>
       </section>
 
-      {/* Platform activity */}
+
       <section>
         <h2>Platform activity</h2>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -64,7 +64,6 @@ export default function AdminDashPage() {
         </div>
       </section>
 
-      {/* Rate limit incidents */}
       <section>
         <h2>Rate limit incidents</h2>
         <p className="text-muted">Users exceeding 100 requests/min</p>
@@ -94,7 +93,7 @@ export default function AdminDashPage() {
         )}
       </section>
 
-      {/* IP mismatch incidents */}
+
       <section>
         <h2>IP mismatch incidents</h2>
         <p className="text-muted">Users whose IP changed between token issue and request</p>

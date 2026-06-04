@@ -33,13 +33,12 @@ export default function AdminTournamentsPage() {
         const data = await res.json();
         setTournaments(data.tournaments || []);
       } catch {
-        // fail silently — list is supplementary
       }
     }
     loadTournaments();
   }, []);
 
-  // If editing, pre-fill form with existing tournament data
+
   useEffect(() => {
     if (!editId) return;
     async function load() {
@@ -131,7 +130,7 @@ export default function AdminTournamentsPage() {
       <h1>{isEdit ? 'Edit tournament' : 'Tournaments'}</h1>
       <p><Link to="/admin">← Back to dashboard</Link></p>
 
-      {/* Existing tournaments list */}
+
       {!isEdit && (
         <section>
           <h2>Existing tournaments</h2>

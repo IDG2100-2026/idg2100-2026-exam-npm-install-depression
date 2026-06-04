@@ -7,7 +7,6 @@ function MainLayout() {
     <>
       <Header />
       <main>
-        {/* Renders the current route page */}
         <Outlet />
       </main>
       <Footer />

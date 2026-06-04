@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-// import { tournaments as mockTournaments} from '../src/data/mockTournaments';
 import { getTournaments } from '../src/api/tournamentsApi';
 
 
@@ -20,7 +19,7 @@ export default function TournamentListPage() {
     
   }, []);
 
-  //SEARCH BAR
+
 
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -32,7 +31,7 @@ export default function TournamentListPage() {
   return tournament.title.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  //SORTING
+
 
   const [sortBy, setSortBy] = useState('newest');
 

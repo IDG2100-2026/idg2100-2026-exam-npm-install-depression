@@ -36,34 +36,11 @@ export default function Header() {
     localStorage.setItem('boardBg', boardBg);
   }, [boardBg]);
 
-  // useEffect(() => {
-  //   setUser(getCurrentUser());
-  //   function syncUser() { setUser(getCurrentUser()); }
-  //   window.addEventListener('storage', syncUser);
-  //   return () => window.removeEventListener('storage', syncUser);
-  // }, []);
 
-// function handleUserChange(e) {
-//   const userId = e.target.value;
-
-//   setSelectedUser(userId);
-
-//   if (!userId) {
-//     localStorage.removeItem("userId");
-//     localStorage.removeItem("userPoints");
-//     return;
-//   }
-
-//   const user = users.find(user => user._id === userId);
-
-//   localStorage.setItem("userId", userId);
-//   localStorage.setItem("userPoints", user?.points || 0);
-// }
   useEffect(() => {
-    // setUser(getCurrentUser());
     function syncUser() { setUser(getCurrentUser()); }
-    window.addEventListener('storage', syncUser);     // other tabs
-    window.addEventListener('authChanged', syncUser); // same tab (login/logout)
+    window.addEventListener('storage', syncUser);     
+    window.addEventListener('authChanged', syncUser); 
     return () => {
       window.removeEventListener('storage', syncUser);
       window.removeEventListener('authChanged', syncUser);
@@ -90,7 +67,6 @@ export default function Header() {
 
   return (
     <header>
-      {/* Desktop: left nav links */}
       <nav className="nav-links">
         <Link to="/">Home</Link>
         <Link to="/lobby">Lobby</Link>
@@ -100,7 +76,7 @@ export default function Header() {
         {isAdmin() && <Link to="/admin">Admin</Link>}
       </nav>
 
-      {/* Desktop: right controls */}
+
       <div className="nav-controls">
         <button onClick={() => setPanelOpen(p => !p)} aria-label="Appearance settings">
           ⚙ Appearance
@@ -119,7 +95,7 @@ export default function Header() {
         )}
       </div>
 
-      {/* Mobile: hamburger button */}
+
       <button
         className="hamburger"
         onClick={() => { setMobileOpen(o => !o); setPanelOpen(false); }}
@@ -128,7 +104,7 @@ export default function Header() {
         {mobileOpen ? '✕' : '☰'}
       </button>
 
-      {/* Desktop: appearance panel dropdown */}
+
       {panelOpen && (
         <div className="appearance-panel">
           <section>
@@ -187,7 +163,7 @@ export default function Header() {
         </div>
       )}
 
-      {/* Mobile: full menu drawer */}
+
       {mobileOpen && (
         <div className="mobile-menu">
           <Link to="/" onClick={closeMobile}>Home</Link>
@@ -199,7 +175,7 @@ export default function Header() {
 
           <div className="mobile-divider" />
 
-          {/* Appearance settings inline in mobile menu */}
+
           <div style={{ padding: '4px 12px 8px' }}>
             <div style={{ fontSize: 13, color: 'var(--text)', marginBottom: 6 }}>Theme</div>
             <div className="panel-row">

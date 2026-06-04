@@ -33,7 +33,7 @@ function TournamentPage() {
     loadData();
   }, [id]);
 
-  // Countdown + auto-start when startDate is reached
+
   useEffect(() => {
     if (!tournament || tournament.status !== 'upcoming') return;
 
@@ -45,7 +45,6 @@ function TournamentPage() {
         const updated = await getTournamentById(id);
         setTournament(updated);
       } catch {
-        // Another client may have already started it, just refresh
         const updated = await getTournamentById(id);
         setTournament(updated);
       }
@@ -66,12 +65,6 @@ function TournamentPage() {
     return <p>Loading tournament...</p>;
   }
 
-  // const currentUser = {
-  //   _id: "1",
-  //   username: "pokerqueen67",
-  //   role: "admin",
-  //   isLoggedIn: true,
-  // };
 
   const isAdmin = checkIsAdmin();
 

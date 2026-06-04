@@ -73,20 +73,6 @@ export const joinMatch = async (req, res) => {
     }
 };
 
-// export const joinMatch = async (req, res) => {
-//   try {
-//     console.log("BODY:", req.body);
-
-//     const match = await matchService.joinMatch(
-//       req.params.id,
-//       req.body.userId
-//     );
-
-//     res.status(200).json({ message: "Joined match", match });
-//   } catch (err) {
-//     res.status(err.status || 500).json({ message: err.message });
-//   }
-// };
 
 export const leaveMatch = async (req, res) => {
     try {

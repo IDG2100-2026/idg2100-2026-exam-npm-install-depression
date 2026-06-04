@@ -5,7 +5,7 @@ import { apiFetch } from '../src/api/apiClient';
 
 const BACKEND = 'http://localhost:4567';
 
-// Stored paths are /uploads/filename — prefix with backend origin for display
+
 function imgUrl(path) {
   if (!path) return null;
   if (path.startsWith('http')) return path;
@@ -111,7 +111,6 @@ export default function ProfilePage() {
     formData.append('profileImage', file);
     const token = localStorage.getItem('accessToken');
     try {
-      // Use raw fetch — apiFetch sets Content-Type: application/json which breaks multipart uploads
       const res = await fetch(`http://localhost:4567/api/users/${id}`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}` },
@@ -130,11 +129,11 @@ export default function ProfilePage() {
   return (
     <main>
 
-      {/* ── Header ── */}
+
       <section>
         <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
 
-          {/* Avatar */}
+
           <div style={{ textAlign: 'center' }}>
             {profile.profileImage
               ? <img src={imgUrl(profile.profileImage)} alt="avatar"
@@ -151,7 +150,7 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* Info */}
+
           <div style={{ flex: 1 }}>
             <h1 style={{ marginBottom: 4 }}>{profile.username}</h1>
             {profile.email && <p className="text-muted">{profile.email}</p>}
@@ -172,7 +171,7 @@ export default function ProfilePage() {
         {success && !editMode && <p className="form-success" style={{ marginTop: 12 }}>{success}</p>}
       </section>
 
-      {/* ── Edit form ── */}
+
       {editMode && (
         <section>
           <h2>Edit profile</h2>
@@ -209,7 +208,7 @@ export default function ProfilePage() {
         </section>
       )}
 
-      {/* ── Stats ── */}
+
       <section>
         <h2>Stats</h2>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -241,7 +240,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* ── Match history ── */}
+
       <section>
         <h2>Recent games</h2>
         {matches.length === 0 ? (

@@ -1,4 +1,4 @@
-/* OngoingBoard.css */
+
 
 .ongoing-board {
   width: 100%;
@@ -14,7 +14,7 @@
   margin-bottom: 24px;
 }
 
-/* ---- HEADER ---- */
+
 
 .ongoing-board__header {
   flex-shrink: 0;
@@ -53,7 +53,7 @@
   line-height: 1.4;
 }
 
-/* ---- CONTENT ---- */
+
 
 .ongoing-board__content {
   flex: 1;
@@ -65,7 +65,7 @@
   gap: 20px;
 }
 
-/* Other players row */
+
 .ongoing-board__players {
   display: flex;
   justify-content: center;
@@ -87,7 +87,7 @@
   min-width: 100px;
 }
 
-/* ---- GAME AREA ---- */
+
 
 .ongoing-board__game {
   display: flex;
@@ -115,7 +115,7 @@
   min-height: 60px;
 }
 
-/* ---- COMMANDS ---- */
+
 
 .ongoing-board__commands {
   display: flex;
@@ -126,13 +126,13 @@
   flex-wrap: wrap;
 }
 
-/* Override global header border inside the board */
+
 .ongoing-board header {
   border-bottom: none;
   height: auto;
 }
 
-/* ---- TYPOGRAPHY ---- */
+
 
 .ongoing-board h2,
 .ongoing-board h3,
@@ -161,7 +161,7 @@
   font-weight: 600;
 }
 
-/* ---- BUTTONS ---- */
+
 
 .ongoing-board button {
   background-color: #BC2C1A;
@@ -182,7 +182,7 @@
   border-color: transparent;
 }
 
-/* ---- BETTING ---- */
+
 
 .ongoing-board__betting {
   display: flex;
@@ -192,7 +192,7 @@
   font-size: 24px;
 }
 
-/* ---- MEDIA QUERIES ---- */
+
 
 @media (max-width: 768px) {
   .ongoing-board__header {

@@ -8,12 +8,6 @@ import {
 import { useNavigate } from "react-router-dom";
 
 
-// import { Link } from 'react-router-dom';
-// import { useEffect, useState } from "react";
-// import { getMatches, joinMatch } from '../src/api/matchesApi';
-// import { getCurrentUser } from '../src/api/usersApi';
-// import { useNavigate } from "react-router-dom";
-
 export default function LobbyPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [straightsFilter, setStraightsFilter] = useState("all");

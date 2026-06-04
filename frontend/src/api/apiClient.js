@@ -8,7 +8,6 @@ export async function apiFetch(path, options = {}) {
     const res = await fetch(`${BASE}${path}`, {
         ...options,
         headers: {
-            // Don't set Content-Type for FormData — browser sets it with the boundary automatically
             ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...options.headers

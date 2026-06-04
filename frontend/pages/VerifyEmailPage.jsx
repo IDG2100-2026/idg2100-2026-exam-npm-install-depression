@@ -7,10 +7,10 @@ export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
-  const [status, setStatus] = useState('loading'); // loading | success | error
+  const [status, setStatus] = useState('loading'); 
   const [message, setMessage] = useState('');
   const [resendEmail, setResendEmail] = useState('');
-  const [resendStatus, setResendStatus] = useState(''); // '' | 'sending' | 'sent' | 'error'
+  const [resendStatus, setResendStatus] = useState(''); 
 
   useEffect(() => {
     if (!token) {

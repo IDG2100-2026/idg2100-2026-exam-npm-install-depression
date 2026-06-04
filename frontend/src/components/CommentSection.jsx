@@ -25,9 +25,7 @@ function CommentSection({
 
     socket.emit("join_comments", { entityType, entityId });
 
-    // socket.on("new_comment", (comment) => {
-    //   onCommentAdded(comment);
-    // });
+
     socket.on("new_comment", (comment) => {
           console.log("NEW COMMENT SOCKET", comment);
           onCommentAdded(comment);
@@ -39,19 +37,6 @@ function CommentSection({
     };
   }, [entityType, entityId, onCommentAdded]);
 
-//   async function handleSubmit(e) {
-//     e.preventDefault();
-//     setError("");
-
-//     if (!text.trim()) return;
-
-//     try {
-//       await addComment(entityId, text);
-//       setText("");
-//     } catch (err) {
-//       setError(err.message);
-//     }
-//   }
 
 async function handleSubmit(e) {
   e.preventDefault();
@@ -59,30 +44,6 @@ async function handleSubmit(e) {
 
   if (!text.trim()) return;
 
-//   const token = localStorage.getItem("accessToken");
-
-//   if (!token) {
-//     setError("You need to log in to comment.");
-//     return;
-//   }
-
-//   try {
-//     await addComment(entityId, text);
-//     setText("");
-//   } catch (err) {
-//     setError(err.message);
-//   }
-
-//   try {
-//   const newComment = await addComment(entityId, text);
-
-//   onCommentAdded(newComment);
-
-//   setText("");
-// } catch (err) {
-//   setError(err.message);
-// }
-// }
 
 try {
   const response = await addComment(entityId, text);
